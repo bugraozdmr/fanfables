@@ -1,18 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
 <?php $title = "Home" ?>
-<?php include __DIR__ . '/components/head.php' ?>
 
-<body>
-    <div id="preloder">
-        <div class="loader"></div>
-    </div>
 
-    <?php include __DIR__ . '/components/header.php' ?>
+<?php include __DIR__."/components/up-all.php" ?>
+<?php include __DIR__ . '/components/main/hero.php' ?>
 
-    <?php include __DIR__ . '/components/main/hero.php' ?>
 
-    <!-- Product Section Begin -->
     <section class="product spad">
         <div class="container">
             <div class="row">
@@ -573,15 +565,5 @@
             </div>
         </div>
     </section>
-    <!-- Product Section End -->
 
-    <?php include __DIR__."/components/footer.php" ?>
-
-    <?php include __DIR__."/components/search.php" ?>
-
-    <?php include __DIR__."/components/scripts.php" ?>
-
-
-</body>
-
-</html>
+<?php include __DIR__."/components/down-all.php" ?>

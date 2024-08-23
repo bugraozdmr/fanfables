@@ -1,0 +1,36 @@
+CREATE TABLE roles (
+    id CHAR(36) NOT NULL DEFAULT (UUID()),
+    name VARCHAR(60) NOT NULL,
+    normalized_name VARCHAR(60) NOT NULL,
+    PRIMARY KEY (id),
+    UNIQUE (name),
+    UNIQUE (normalized_name)
+);
+
+CREATE TABLE users (
+    id CHAR(36) NOT NULL DEFAULT (UUID()),
+    username VARCHAR(60) NOT NULL UNIQUE,
+    name VARCHAR(60),
+    email VARCHAR(100) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,  -- Field to store hashed passwords
+    image VARCHAR(250),
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE forgotTokenUser (
+    id CHAR(36) NOT NULL DEFAULT (UUID()),      -- Unique identifier for the token record
+    userId CHAR(36) NOT NULL,                   -- Foreign key reference to the user
+    token VARCHAR(255) NOT NULL,                -- Token field with maximum length of 255 characters
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Timestamp of when the token was created
+    PRIMARY KEY (id),
+    FOREIGN KEY (userId) REFERENCES users(id)    -- Foreign key constraint to reference the `users` table
+);
+
+
+CREATE TABLE UserRoles (
+    UserId CHAR(36) NOT NULL,
+    RoleId CHAR(36) NOT NULL,
+    FOREIGN KEY (UserId) REFERENCES users(id),
+    FOREIGN KEY (RoleId) REFERENCES roles(id)
+);

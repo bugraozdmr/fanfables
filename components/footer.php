@@ -1,3 +1,4 @@
+<?php $footer_path="/anime/" ?>
 <footer class="footer">
     <div class="page-up">
         <a href="#" id="scrollToTopButton"><span class="arrow_carrot-up"></span></a>
@@ -6,13 +7,13 @@
         <div class="row">
             <div class="col-lg-3">
                 <div class="footer__logo">
-                    <a href="./index.html"><img src="img/logo.png" alt=""></a>
+                    <a href="<?php echo $footer_path ?>index.php"><img width="98" height="23" src="img/logo.png" alt=""></a>
                 </div>
             </div>
             <div class="col-lg-6">
                 <div class="footer__nav">
                     <ul>
-                        <li class="active"><a href="./index.html">Homepage</a></li>
+                        <li class="active"><a href="<?php echo $footer_path ?>index.php">Homepage</a></li>
                         <li><a href="./categories.html">Categories</a></li>
                         <li><a href="./blog.html">Our Blog</a></li>
                         <li><a href="#">Contacts</a></li>
@@ -20,10 +21,8 @@
                 </div>
             </div>
             <div class="col-lg-3">
-                <p><!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
-                    Copyright &copy;<?php echo date("Y"); ?> All rights reserved | This template is made with <i class="fa fa-heart" aria-hidden="true"></i> by <a href="https://colorlib.com" target="_blank">Colorlib</a>
-                    <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. --></p>
-
+                <p>
+                    Copyright &copy;<?php echo date("Y"); ?> All rights reserved | This site is made with <i class="fa fa-heart" aria-hidden="true"></i>
             </div>
         </div>
     </div>
