@@ -13,14 +13,16 @@ use Firebase\JWT\Key;
 
 require 'vendor/autoload.php';
 
+
+//? connect first
+include __DIR__ . "/../actions/connect.php";
+
 if (isset($_COOKIE['auth_token'])) {
     $token = $_COOKIE['auth_token'];
     $decoded = JWT::decode($token, new Key($key, 'HS256'));
     $username = $decoded->sub;
 
 
-    //? connect first
-    include __DIR__ . "/../actions/connect.php";
 
     $query = "SELECT id,username,image FROM users WHERE username=:username";
     $stmt = $db->prepare($query);
@@ -84,7 +86,7 @@ $typs = $stmt->fetchAll();
                             </li>
                             <li><a href="<?php echo $header_path ?>/categories.php">Categories</a></li>
                             <li><a href="./blog.html">Our Blog</a></li>
-                            <li><a href="#">Contacts</a></li>
+                            <li><a href="<?php echo $header_path ?>/watch-later.php">Watch Later</a></li>
                         </ul>
                     </nav>
                 </div>

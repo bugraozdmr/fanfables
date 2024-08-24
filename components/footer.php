@@ -16,7 +16,7 @@
                         <li class="active"><a href="<?php echo $footer_path ?>index.php">Homepage</a></li>
                         <li><a href="./categories.html">Categories</a></li>
                         <li><a href="./blog.html">Our Blog</a></li>
-                        <li><a href="#">Contacts</a></li>
+                        <li><a href="<?php echo $footer_path ?>watch-later.php">Contacts</a></li>
                     </ul>
                 </div>
             </div>

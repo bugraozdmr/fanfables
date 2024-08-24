@@ -1,7 +1,34 @@
-<?php 
+<?php
+
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 
+function timeAgo($dateTime)
+{
+    // HARBI GELECEGE DONUS OLDU
+    $timezone = new DateTimeZone('Europe/Istanbul');
+    $now = new DateTime('now', $timezone);
+    $date = new DateTime($dateTime, $timezone);
+    $interval = $now->diff($date);
+
+    if ($date > $now) {
+        return $date->format('d.m.Y H:i:s');
+    }
+
+    if ($interval->y > 0) {
+        return $interval->y . ' years ago';
+    } elseif ($interval->m > 0) {
+        return $interval->m . ' months ago';
+    } elseif ($interval->d > 0) {
+        return $interval->d . ' days ago';
+    } elseif ($interval->h > 0) {
+        return $interval->h . ' hours ago';
+    } elseif ($interval->i > 0) {
+        return $interval->i . ' minutes ago';
+    } else {
+        return 'Now';
+    }
+}
 
 if (isset($_GET['slug'])) {
     //* show path
@@ -27,7 +54,7 @@ if (isset($_GET['slug'])) {
         $decoded = JWT::decode($token, new Key($key, 'HS256'));
         $username = $decoded->sub;
 
-        $query = "SELECT id FROM users WHERE username=:username";
+        $query = "SELECT id,username FROM users WHERE username=:username";
         $stmt = $db->prepare($query);
         $stmt->bindParam(':username', $username);
         $stmt->execute();
@@ -35,6 +62,7 @@ if (isset($_GET['slug'])) {
 
         //* USERID
         $userId = $result['id'];
+        $userNm = $result['username'] ?? null;
 
         $query = "SELECT r.normalized_name AS role
               FROM UserRoles ur
@@ -43,15 +71,19 @@ if (isset($_GET['slug'])) {
         $stmt = $db->prepare($query);
         $stmt->bindParam(':id', $userId);
         $stmt->execute();
-        $result = $stmt->fetch();
+        $result = $stmt->fetchAll();
 
+        $rolee = [];
+        foreach ($result as $row) {
+            $rolee[] = $row['role'];
+        }
     } else {
         $loggedIn = false;
     }
 
 
     try {
-        $query = "SELECT s.id as id,s.name as name,s.watchLink as watchLink,s.imdb as imdb, s.director as director,s.image as image,s.status as status,s.studio as studio,s.date_aired as date_aired, s.episode_count as episode_count,s.duration as duration,s.description as description,s.card_desc as card_desc,s.image as image,t.name as type
+        $query = "SELECT s.id as id,s.name as name,s.slug as slug,s.watchLink as watchLink,s.imdb as imdb, s.director as director,s.image as image,s.status as status,s.studio as studio,s.date_aired as date_aired, s.episode_count as episode_count,s.duration as duration,s.description as description,s.card_desc as card_desc,s.image as image,t.name as type
         FROM Shows s
         JOIN Types t ON t.id=s.typeId
         WHERE slug = :slug";
@@ -79,6 +111,46 @@ if (isset($_GET['slug'])) {
             $namesArray = array_column($showCategories, 'name');
             $cnamesString = implode(',', $namesArray);
 
+            //* YOU MIGHT LIKE
+            $query = "SELECT s.name as name,s.id as id,s.image as image,s.slug as slug,s.imdb as imdb
+            FROM SHOWS s
+            ORDER BY RAND()
+            LIMIT 5";
+            $stmt = $db->prepare($query);
+            $stmt->execute();
+            $ymlShows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            foreach ($ymlShows as &$ss) {
+                $showwwId = $ss['id'];
+
+                $query = "SELECT COUNT(*) FROM Comments WHERE showId=:showId";
+                $stmt = $db->prepare($query);
+                $stmt->bindParam(':showId', $showwwId);
+                $stmt->execute();
+                $commentsCount = $stmt->fetchColumn();
+
+                $ss['commentCount'] = $commentsCount;
+            }
+
+            //* COMMENTS
+            $query = "SELECT COUNT(*) FROM Comments WHERE showId=:showId";
+            $stmt = $db->prepare($query);
+            $stmt->bindParam(':showId', $show['id']);
+            $stmt->execute();
+            $commentsCount = $stmt->fetchColumn();
+
+
+            //TODO DELETE COMMENT
+            $query = "SELECT c.id as id,c.comment as comment,u.username as username,u.image as userimage,c.createdAt as createdAt
+            FROM Comments c
+            JOIN users u ON u.id=c.userId
+            WHERE showId=:showId
+            ORDER BY c.createdAt DESC
+            ";
+            $stmt = $db->prepare($query);
+            $stmt->bindParam(':showId', $show['id']);
+            $stmt->execute();
+            $comments = $stmt->fetchAll(PDO::FETCH_ASSOC);
         } else {
             // TODO CHANGE 404
             header('Location: /anime/404.php');
@@ -96,179 +168,252 @@ if (isset($_GET['slug'])) {
 include "./components/up-all.php";
 ?>
 
-    <div class="breadcrumb-option">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="breadcrumb__links">
-                        <a href="./index.html"><i class="fa fa-home"></i> Home</a>
-                        <a href="./categories.html">Shows</a>
-                        <span><?php echo $show['name'] ?></span>
-                    </div>
+<div class="breadcrumb-option">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="breadcrumb__links">
+                    <a href="./index.html"><i class="fa fa-home"></i> Home</a>
+                    <a href="./categories.html">Shows</a>
+                    <span><?php echo $show['name'] ?></span>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <section class="anime-details spad">
-        <div class="container">
-            <div class="anime__details__content">
-                <div class="row">
-                    <div class="col-lg-3">
-                        <div class="anime__details__pic set-bg" data-setbg="<?php echo $show_path.$show['image'] ?>">
-                            <div class="comment"><i class="fa fa-comments"></i> 11</div>
-                            <div class="view"><i class="fa fa-eye"></i> 9141</div>
-                        </div>
-                    </div>
-                    <div class="col-lg-9">
-                        <div class="anime__details__text">
-                            <div class="anime__details__title">
-                                <h3><?php echo $show['name'] ?></h3>
-                                <?php if($show['director']) : ?>
-                                    <span><?php echo $show['director'] ?></span>
-                                <?php endif; ?>
-                            </div>
-                            <div class="anime__details__rating">
-                                <div class="rating">
-                                    <span><img width="60" height="22" src="<?php echo $show_path."/img/imdb.webp" ?>" alt="imdb logo"></span>
-                                </div>
-                                <span><?php echo $show['imdb'] ?></span>
-                            </div>
-                            <p><?php echo $show['description'] ?></p>
-                            <div class="anime__details__widget">
-                                <div class="row">
-                                    <div class="col-lg-6 col-md-6">
-                                        <ul>
-                                            <li><span>Type:</span> <?php echo $show['type'] ?></li>
-                                            <li><span>Rating:</span> <?php echo $show['imdb'] ?></li>
-                                            <li><span>Date :</span> <?php echo $show['date_aired'] ?></li>
-                                            <?php if(!empty($show['status'])) : ?>
-                                                <li><span>Status:</span> <?php echo $show['status'] ?></li>
-                                            <?php endif; ?>
-                                        </ul>
-                                    </div>
-                                    <div class="col-lg-6 col-md-6">
-                                        <ul>
-                                            <li><span>Genre:</span> <?php echo $cnamesString ?></li>
-                                            <li><span>Studios:</span>  <?php echo $show['studio'] ?? "" ?></li>
-                                            <li><span>Duration:</span> <?php echo $show['duration'] ?></li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="anime__details__btn">
-                                <a href="#" class="follow-btn"><i class="fa fa-heart-o"></i> Watch Later</a>
-                                <?php if(!empty($show['watchLink'])) : ?>
-                                <a target="_blank" href="<?php echo $show['watchLink'] ?>" class="watch-btn"><span>Watch Now</span> <i
-                                    class="fa fa-angle-right"></i></a>
-                                <?php endif; ?>
-                                </div>
-                            </div>
-                        </div>
+<section class="anime-details spad">
+    <div class="container">
+        <div class="anime__details__content">
+            <div class="row">
+                <div class="col-lg-3">
+                    <div class="anime__details__pic set-bg" data-setbg="<?php echo $show_path . $show['image'] ?>">
+                        <div class="comment"><i class="fa fa-comments"></i> <?php echo $commentsCount ?></div>
+                        <div class="view"><i class="fa fa-eye"></i> 9141</div>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-lg-8 col-md-8">
-                        <div class="anime__details__review">
-                            <div class="section-title">
-                                <h5>Reviews</h5>
+                <div class="col-lg-9">
+                    <div class="anime__details__text">
+                        <div class="anime__details__title">
+                            <h3><?php echo $show['name'] ?></h3>
+                            <?php if ($show['director']) : ?>
+                                <span><?php echo $show['director'] ?></span>
+                            <?php endif; ?>
+                        </div>
+                        <div class="anime__details__rating">
+                            <div class="rating">
+                                <span><img width="60" height="22" src="<?php echo $show_path . "/img/imdb.webp" ?>" alt="imdb logo"></span>
                             </div>
-                            <div class="anime__review__item">
-                                <div class="anime__review__item__pic">
-                                    <img src="img/anime/review-1.jpg" alt="">
+                            <span><?php echo $show['imdb'] ?></span>
+                        </div>
+                        <p><?php echo $show['description'] ?></p>
+                        <div class="anime__details__widget">
+                            <div class="row">
+                                <div class="col-lg-6 col-md-6">
+                                    <ul>
+                                        <li><span>Type:</span> <?php echo $show['type'] ?></li>
+                                        <li><span>Rating:</span> <?php echo $show['imdb'] ?></li>
+                                        <li><span>Date :</span> <?php echo $show['date_aired'] ?></li>
+                                        <?php if (!empty($show['status'])) : ?>
+                                            <li><span>Status:</span> <?php echo $show['status'] ?></li>
+                                        <?php endif; ?>
+                                    </ul>
                                 </div>
-                                <div class="anime__review__item__text">
-                                    <h6>Chris Curry - <span>1 Hour ago</span></h6>
-                                    <p>whachikan Just noticed that someone categorized this as belonging to the genre
-                                    "demons" LOL</p>
-                                </div>
-                            </div>
-                            <div class="anime__review__item">
-                                <div class="anime__review__item__pic">
-                                    <img src="img/anime/review-2.jpg" alt="">
-                                </div>
-                                <div class="anime__review__item__text">
-                                    <h6>Lewis Mann - <span>5 Hour ago</span></h6>
-                                    <p>Finally it came out ages ago</p>
-                                </div>
-                            </div>
-                            <div class="anime__review__item">
-                                <div class="anime__review__item__pic">
-                                    <img src="img/anime/review-3.jpg" alt="">
-                                </div>
-                                <div class="anime__review__item__text">
-                                    <h6>Louis Tyler - <span>20 Hour ago</span></h6>
-                                    <p>Where is the episode 15 ? Slow update! Tch</p>
-                                </div>
-                            </div>
-                            <div class="anime__review__item">
-                                <div class="anime__review__item__pic">
-                                    <img src="img/anime/review-4.jpg" alt="">
-                                </div>
-                                <div class="anime__review__item__text">
-                                    <h6>Chris Curry - <span>1 Hour ago</span></h6>
-                                    <p>whachikan Just noticed that someone categorized this as belonging to the genre
-                                    "demons" LOL</p>
-                                </div>
-                            </div>
-                            <div class="anime__review__item">
-                                <div class="anime__review__item__pic">
-                                    <img src="img/anime/review-5.jpg" alt="">
-                                </div>
-                                <div class="anime__review__item__text">
-                                    <h6>Lewis Mann - <span>5 Hour ago</span></h6>
-                                    <p>Finally it came out ages ago</p>
-                                </div>
-                            </div>
-                            <div class="anime__review__item">
-                                <div class="anime__review__item__pic">
-                                    <img src="img/anime/review-6.jpg" alt="">
-                                </div>
-                                <div class="anime__review__item__text">
-                                    <h6>Louis Tyler - <span>20 Hour ago</span></h6>
-                                    <p>Where is the episode 15 ? Slow update! Tch</p>
+                                <div class="col-lg-6 col-md-6">
+                                    <ul>
+                                        <li><span>Genre:</span> <?php echo $cnamesString ?></li>
+                                        <li><span>Studios:</span> <?php echo $show['studio'] ?? "" ?></li>
+                                        <li><span>Duration:</span> <?php echo $show['duration'] ?></li>
+                                    </ul>
                                 </div>
                             </div>
                         </div>
-                        <div class="anime__details__form">
-                            <div class="section-title">
-                                <h5>Your Comment</h5>
-                            </div>
-                            <form action="#">
-                                <textarea placeholder="Your Comment"></textarea>
-                                <button type="submit"><i class="fa fa-location-arrow"></i> Review</button>
-                            </form>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-4">
-                        <div class="anime__details__sidebar">
-                            <div class="section-title">
-                                <h5>you might like...</h5>
-                            </div>
-                            <div class="product__sidebar__view__item set-bg" data-setbg="img/sidebar/tv-1.jpg">
-                                <div class="ep">18 / ?</div>
-                                <div class="view"><i class="fa fa-eye"></i> 9141</div>
-                                <h5><a href="#">Boruto: Naruto next generations</a></h5>
-                            </div>
-                            <div class="product__sidebar__view__item set-bg" data-setbg="img/sidebar/tv-2.jpg">
-                                <div class="ep">18 / ?</div>
-                                <div class="view"><i class="fa fa-eye"></i> 9141</div>
-                                <h5><a href="#">The Seven Deadly Sins: Wrath of the Gods</a></h5>
-                            </div>
-                            <div class="product__sidebar__view__item set-bg" data-setbg="img/sidebar/tv-3.jpg">
-                                <div class="ep">18 / ?</div>
-                                <div class="view"><i class="fa fa-eye"></i> 9141</div>
-                                <h5><a href="#">Sword art online alicization war of underworld</a></h5>
-                            </div>
-                            <div class="product__sidebar__view__item set-bg" data-setbg="img/sidebar/tv-4.jpg">
-                                <div class="ep">18 / ?</div>
-                                <div class="view"><i class="fa fa-eye"></i> 9141</div>
-                                <h5><a href="#">Fate/stay night: Heaven's Feel I. presage flower</a></h5>
-                            </div>
+                        <div class="anime__details__btn">
+                            <?php if (isset($token) && !empty($token)) : ?>
+                                <a href="#" class="follow-btn favorite-button"
+                                    data-id="<?php echo $show['slug']; ?>">
+                                    <i class="fa fa-heart-o"></i> Watch Later
+                                </a>
+                            <?php endif; ?>
+                            <?php if (!empty($show['watchLink'])) : ?>
+                                <a target="_blank" href="<?php echo $show['watchLink'] ?>" class="watch-btn"><span>Watch Now</span> <i
+                                        class="fa fa-angle-right"></i></a>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>
             </div>
-        </section>
+        </div>
+        <div class="row">
+            <div class="col-lg-8 col-md-8">
+                <div class="anime__details__review">
+                    <div class="section-title">
+                        <h5>Reviews</h5>
+                    </div>
+                    <?php foreach ($comments as $comment) : ?>
+                        <div class="anime__review__item">
+                            <div class="anime__review__item__pic">
+                                <img src="<?php echo $show_path . $comment['userimage'] ?>" alt="user image">
+                            </div>
+                            <div class="anime__review__item__text">
+                                <h6><?php echo $comment['username'] ?> - <span><?php echo timeAgo($comment['createdAt']) ?></span></h6>
+                                <p><?php echo $comment['comment'] ?></p>
+                            </div>
+                            <div class="col-lg-12">
+                                <?php if (isset($result) && !empty($result) && in_array('ADMIN', $rolee)): ?>
+                                    <button type="button" style="justify-content:center; display: block; margin: 0 auto;" class="btn btn-danger button-delete" title="Delete" data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="<?php echo $comment['id'] ?>">Delete The Review</button>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+                <?php if ($loggedIn) : ?>
+                    <div class="anime__details__form">
+                        <div class="section-title">
+                            <h5>Your Comment</h5>
+                        </div>
+                        <form id="comment-form">
+                            <textarea placeholder="Your Comment" id="comment"></textarea>
+                            <input type="hidden" name="username" id="username" value="<?php echo $userNm ?>">
+                            <input type="hidden" name="showSlug" id="showSlug" value="<?php echo $show['slug'] ?>">
+                            <div class="col-lg-12">
+                                <span id="error-message" class="text-danger mb-2 d-none"></span>
+                            </div>
+                            <button type="submit"><i class="fa fa-location-arrow"></i> Review</button>
+                        </form>
+                    </div>
+                <?php else : ?>
+                    <div class="anime__details__form">
+                        <div class="section-title">
+                            <h5>If you want to comment first <a style="color:darkred;" href="<?php echo $show_path."/login.php" ?>">Login</a></h5>
+                        </div>
+                    </div>
+                <?php endif; ?>
+            </div>
+            <div class="col-lg-4 col-md-4">
+                <div class="anime__details__sidebar">
+                    <div class="section-title">
+                        <h5>you might like...</h5>
+                    </div>
+                    <?php foreach ($ymlShows as $sshow) : ?>
+                        <div class="product__sidebar__view__item set-bg" data-setbg="<?php echo $show_path . $sshow['image'] ?>">
+                            <div class="ep"><?php echo $sshow['imdb'] ?></div>
+                            <div class="view"><i class="fa fa-comment"></i> <?php echo $sshow['commentCount'] ?></div>
+                            <h5><a href="<?php echo $dynamicUrl . "/s/" . $sshow['slug'] ?>"><?php echo $sshow['name'] ?></a></h5>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<?php if (isset($result) && !empty($result)  && in_array('ADMIN', $rolee)): ?>
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to delete this item?
+                    <input type="hidden" id="comment-id" value="">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="delete-button">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+<?php endif; ?>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.min.js" integrity="sha512-ykZ1QQr0Jy/4ZkvKuqWn4iF3lqPZyij9iRv6sGqLRdTPkY69YX6+7wvVGmsdBbiIfN/8OdsI7HABjvEok6ZopQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<?php if (isset($result) && !empty($result)  && in_array('ADMIN', $rolee)): ?>
+    <script>
+        // HIDDEN SCRIPT REVIEW
+        document.querySelectorAll('.button-delete').forEach(button => {
+            button.addEventListener('click', function() {
+                var reviewId = this.getAttribute('data-id');
+                console.log(reviewId);
+                document.getElementById('comment-id').value = reviewId;
+            });
+        });
+
+        document.getElementById('delete-button').addEventListener('click', function() {
+            var reviewId = document.getElementById('comment-id').value;
+
+            fetch('/anime/actions/show/delete-comment.php', {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        id: reviewId
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    const errorMessageElement = document.getElementById('error-message');
+
+                    if (data.status === 'success') {
+                        window.location.reload();
+                    } else {
+                        errorMessageElement.textContent = data.message;
+                        errorMessageElement.classList.remove('d-none');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        });
+    </script>
+<?php endif; ?>
+
+<?php if ($loggedIn) : ?>
+    <script>
+        document.getElementById('comment-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            var commentTextarea = document.getElementById('comment').value;
+            var username = document.getElementById('username').value;
+            var showSlug = document.getElementById('showSlug').value;
+
+            var data = {
+                username: username,
+                showSlug: showSlug,
+                comment: commentTextarea,
+            };
+
+            fetch('/anime/actions/show/add-comment.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    const errorMessageElement = document.getElementById('error-message');
+
+                    if (data.status === 'success') {
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 0);
+                    } else {
+                        errorMessageElement.textContent = data.message;
+                        errorMessageElement.classList.remove('d-none');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        });
+
+        document.addEventListener("DOMContentLoaded",(function(){document.querySelectorAll(".favorite-button").forEach((function(e){e.addEventListener("click",(function(e){e.preventDefault();var t={slug:this.getAttribute("data-id")};fetch("/anime/actions/common/add-favs.php",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(t)}).then((e=>e.json())).then((e=>{"success"===e.status?window.location.reload():console.log(e.message)})).catch((e=>{console.error("Error:",e)}))}))}))}));
+    </script>
+<?php endif; ?>
 
 <?php include "./components/down-all.php" ?>

@@ -16,7 +16,7 @@ include __DIR__ . '/actions/connect.php';
 //TODO veritabanı boşşsa kontrolu
 
 //* Random GET
-$query = "SELECT s.name as name,s.image as image,s.slug as slug,s.imdb as imdb,t.name as type
+$query = "SELECT s.id as id,s.name as name,s.image as image,s.slug as slug,s.imdb as imdb,t.name as type
 FROM SHOWS s
 JOIN Types t ON t.id=s.typeId
 ORDER BY RAND()
@@ -25,8 +25,19 @@ $stmt = $db->prepare($query);
 $stmt->execute();
 $randomShows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+foreach($randomShows as &$rrs){
+    $query = "SELECT COUNT(*) FROM Comments WHERE showId=:showId";
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(':showId', $rrs['id']);
+    $stmt->execute();
+    $ccount = $stmt->fetchColumn();
+
+    $rrs['commentCount'] = $ccount;
+}
+
+
 //* RECENTLY ADDED
-$query = "SELECT s.name as name,s.image as image,s.slug as slug,s.imdb as imdb,t.name as type
+$query = "SELECT s.id as id,s.name as name,s.image as image,s.slug as slug,s.imdb as imdb,t.name as type
 FROM SHOWS s
 JOIN Types t ON t.id=s.typeId
 ORDER BY s.created_at DESC
@@ -34,9 +45,18 @@ LIMIT 6";
 $stmt = $db->prepare($query);
 $stmt->execute();
 $recentShows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+foreach($recentShows as &$rrs1){
+    $query = "SELECT COUNT(*) FROM Comments WHERE showId=:showId";
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(':showId', $rrs1['id']);
+    $stmt->execute();
+    $ccount = $stmt->fetchColumn();
+
+    $rrs1['commentCount'] = $ccount;
+}
 
 //* MOST IMDB
-$query = "SELECT s.name as name,s.image as image,s.slug as slug,s.imdb as imdb,t.name as type
+$query = "SELECT s.id as id,s.name as name,s.image as image,s.slug as slug,s.imdb as imdb,t.name as type
 FROM SHOWS s
 JOIN Types t ON t.id=s.typeId
 ORDER BY s.imdb DESC
@@ -44,6 +64,16 @@ LIMIT 6";
 $stmt = $db->prepare($query);
 $stmt->execute();
 $mostRated = $stmt->fetchAll(PDO::FETCH_ASSOC);
+foreach($mostRated as &$rrs2){
+    $query = "SELECT COUNT(*) FROM Comments WHERE showId=:showId";
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(':showId', $rrs2['id']);
+    $stmt->execute();
+    $ccount = $stmt->fetchColumn();
+
+    $rrs2['commentCount'] = $ccount;
+}
+
 
 ?>
 
@@ -73,7 +103,7 @@ $mostRated = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                         <?php if (!empty($rands['imdb'])) : ?>
                                             <div class="ep"><?php echo $rands['imdb'] ?></div>
                                         <?php endif; ?>
-                                        <div class="comment"><i class="fa fa-comments"></i> 11</div>
+                                        <div class="comment"><i class="fa fa-comments"></i> <?php echo $rands['commentCount'] ?></div>
                                         <div class="view"><i class="fa fa-eye"></i> Character count TODO</div>
                                     </div>
                                     <div class="product__item__text">
@@ -111,7 +141,7 @@ $mostRated = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                         <?php if (!empty($mr['imdb'])) : ?>
                                             <div class="ep"><?php echo $mr['imdb'] ?></div>
                                         <?php endif; ?>
-                                        <div class="comment"><i class="fa fa-comments"></i> 11</div>
+                                        <div class="comment"><i class="fa fa-comments"></i> <?php echo $mr['commentCount'] ?></div>
                                         <div class="view"><i class="fa fa-eye"></i> Character count TODO</div>
                                     </div>
                                     <div class="product__item__text">
@@ -149,7 +179,7 @@ $mostRated = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                         <?php if (!empty($rs['imdb'])) : ?>
                                             <div class="ep"><?php echo $rs['imdb'] ?></div>
                                         <?php endif; ?>
-                                        <div class="comment"><i class="fa fa-comments"></i> 11</div>
+                                        <div class="comment"><i class="fa fa-comments"></i> <?php echo $rs['commentCount'] ?></div>
                                         <div class="view"><i class="fa fa-eye"></i> Character count TODO</div>
                                     </div>
                                     <div class="product__item__text">
