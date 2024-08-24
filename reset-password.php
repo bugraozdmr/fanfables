@@ -71,9 +71,9 @@ include __DIR__ . "/components/up-all.php"
                 <div class="col-lg-6">
                     <div class="login__form">
                         <h3>Reset Password</h3>
-                        <form id="login-form">
+                        <form id="send-reset-form">
                             <div class="input__item">
-                                <input type="text" id="password" placeholder="New Password">
+                                <input type="password" id="password" placeholder="New Password">
                                 <span class="icon_mail"></span>
                             </div>
                             <input id="token" type="hidden" value="<?php echo $tokenFound ? $token : '' ?>">

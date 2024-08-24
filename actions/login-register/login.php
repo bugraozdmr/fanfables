@@ -59,7 +59,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 }
 
                 try {
-                    $query = "SELECT password FROM users where " . "$checkUsrParam" . "=:username";
+                    $query = "SELECT password,username FROM users where " . "$checkUsrParam" . "=:username";
                     $stmt = $db->prepare($query);
                     $stmt->bindParam(':username', $username, PDO::PARAM_STR);
                     $stmt->execute();
@@ -74,7 +74,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                     if (password_verify($password, $hashedPassword)) {
                         //composer require firebase/php-jwt
-                        $token = createToken($username);
+                        $token = createToken($result['username']);
 
                         //* CREATE TOKEN
                         $cookieName = 'auth_token';

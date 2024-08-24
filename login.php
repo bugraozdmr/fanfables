@@ -1,6 +1,16 @@
 <?php
 $title = "Login";
 $login_path = "/anime/";
+
+if (isset($_COOKIE['auth_token'])) {
+    $token = $_COOKIE['auth_token'];
+}
+
+if (isset($token)) {
+    header('Location: index.php');
+    exit();
+}
+
 include __DIR__ . "/components/up-all.php"
 ?>
 

@@ -1,7 +1,7 @@
 <?php $head_path="/anime/" ?>
 <head>
     <meta charset="UTF-8">
-    <meta name="description" content="Anime Template">
+    <meta name="description" content="<?php echo $pageDescription ??  "FanFables is your go-to hub for anime, manga, and character insights. Explore detailed profiles, join lively discussions, and stay updated with our latest blog posts. Dive into your favorite stories and connect with fellow fans!"?>">
     <meta name="keywords" content="Anime, unica, creative, html">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
