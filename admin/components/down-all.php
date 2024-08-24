@@ -4,7 +4,7 @@
             <ul class="nav">
               <li class="nav-item">
                 <a class="nav-link" href="/index.php" style="color: #fff; background: linear-gradient(to right, #ff7e5f, #feb47b); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
-                  ShopEase
+                  FANFABLES
                 </a>
 
               </li>

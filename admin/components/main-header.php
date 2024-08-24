@@ -1,5 +1,5 @@
 <?php
-$base_url = '/e-trade/admin/assets/';
+$base_url = '/anime/admin/assets/';
 ?>
 
 <div class="main-header">

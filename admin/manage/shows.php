@@ -119,6 +119,10 @@ if (isset($_GET['id'])) {
                 <input type="text" id="imdb" name="imdb" placeholder="Enter show imdb" value="<?php echo htmlspecialchars($showFound != 0 && $showFound == 1 && isset($show) ? $show['imdb'] : ''); ?>">
             </div>
             <div class="form-group">
+                <label for="link">Show Link (*: Give a link)</label>
+                <input type="text" id="link" name="link" placeholder="Enter show url link" value="<?php echo htmlspecialchars($showFound != 0 && $showFound == 1 && isset($show) ? $show['watchLink'] : ''); ?>">
+            </div>
+            <div class="form-group">
                 <label for="description">Show Description (*: Very nice shoe)</label>
                 <textarea class="form-control" type="text" id="description" name="description" placeholder="Enter show description" rows="6" required><?php echo htmlspecialchars($showFound != 0 && $showFound == 1 && isset($show) ? $show['description'] : ''); ?></textarea>
             </div>
@@ -177,7 +181,7 @@ if (isset($_GET['id'])) {
             <?php endif; ?>
 
             <input type="hidden" id="id" name="id" value="<?php echo htmlspecialchars($showFound != 0 && $showFound == 1 && isset($show) ? $show['id'] : ''); ?>">
-            
+
             <button type="submit"><?php echo $showFound == 1 ? 'Update' : 'Submit' ?></button>
         </form>
     </div>
@@ -204,7 +208,7 @@ if (isset($_GET['id'])) {
     setRandomGradient();
 
 
-    document.getElementById('images').addEventListener('change', function(event) {
+    document.getElementById('showImage').addEventListener('change', function(event) {
         const files = event.target.files;
         const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
         let allValid = true;
@@ -236,6 +240,7 @@ if (isset($_GET['id'])) {
         var showIMDB = document.getElementById('imdb').value;
         var showDescription = document.getElementById('description').value;
         var showCardDesc = document.getElementById('card_desc').value;
+        var showLink = document.getElementById('link').value;
         var showId = document.getElementById('id').value; // Get the ID
         var typeId = document.getElementById('typeId').value;
 
@@ -257,6 +262,7 @@ if (isset($_GET['id'])) {
         formData.append('description', showDescription);
         formData.append('card_desc', showCardDesc);
         formData.append('typeid', typeId);
+        formData.append('link', showLink);
         formData.append('categories', categories);
         formData.append('image', imageInput.files[0]);
 

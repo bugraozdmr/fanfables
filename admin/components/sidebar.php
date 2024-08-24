@@ -1,6 +1,5 @@
 <div class="sidebar" data-background-color="dark">
   <div class="sidebar-logo">
-    <!-- Logo Header -->
     <div class="logo-header" data-background-color="dark">
       <a href="/anime/admin/index.php" class="logo">
         <img
@@ -21,7 +20,6 @@
         <i class="gg-more-vertical-alt"></i>
       </button>
     </div>
-    <!-- End Logo Header -->
   </div>
   <div class="sidebar-wrapper scrollbar scrollbar-inner">
     <div class="sidebar-content">
@@ -62,18 +60,13 @@
                 </a>
               </li>
               <li>
-                <a href="/anime/admin/stocks.php">
-                  <span class="sub-item">Add Stock</span>
-                </a>
-              </li>
-              <li>
-                <a href="/anime/admin/filters.php">
-                  <span class="sub-item">Add Filters</span>
+                <a href="/anime/admin/types.php">
+                  <span class="sub-item">Add Types</span>
                 </a>
               </li>
               <li>
                 <a href="/anime/admin/categories.php">
-                  <span class="sub-item">Add Main Categories</span>
+                  <span class="sub-item">Add Categories</span>
                 </a>
               </li>
               <li>

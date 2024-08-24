@@ -9,15 +9,18 @@ $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp'];
 $allowedMimeTypes = ['image/jpeg', 'image/png', 'image/webp'];
 
 // Function to get the file extension
-function getFileExtension($filename) {
+function getFileExtension($filename)
+{
     return strtolower(pathinfo($filename, PATHINFO_EXTENSION));
 }
 // Function to generate a random 3-character hash
-function generateRandomHash($length = 4) {
+function generateRandomHash($length = 4)
+{
     return substr(bin2hex(random_bytes($length)), 0, $length);
 }
 
-function generateSlug($string) {
+function generateSlug($string)
+{
     // Convert to lowercase
     $slug = strtolower($string);
 
@@ -60,12 +63,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $id = isset($_POST['id']) ? $_POST['id'] : '';
         $status = isset($_POST['status']) ? $_POST['status'] : '';
         $imdb = isset($_POST['imdb']) ? $_POST['imdb'] : '';
+        $watchLink = isset($_POST['link']) ? $_POST['link'] : '';
         $description = isset($_POST['description']) ? $_POST['description'] : '';
         $card_desc = isset($_POST['card_desc']) ? $_POST['card_desc'] : '';
         $typeid = isset($_POST['typeid']) ? $_POST['typeid'] : '';
         $categories = isset($_POST['categories']) ? $_POST['categories'] : '';
 
-        if (empty($name) || empty($director) || empty($studio) || empty($duration) || empty($show_date) || empty($description) || empty($card_desc) || empty($typeid) || empty($categories)) {
+        if (empty($name) || empty($director) || empty($duration) || empty($show_date) || empty($description) || empty($card_desc) || empty($typeid) || empty($categories)) {
             throw new Exception('Some fields seems like empty.');
         }
         if (empty($id)) {
@@ -73,12 +77,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             //? generate slug
             $slug = generateSlug($name);
 
-            $sql = "INSERT INTO Products (name, director, description,card_desc, studio,slug,duration,date_aired,status,imdb,episode_count,typeId) VALUES (:name, :director, :description,:card_desc, :studio,:slug, :duration,:show_date,:status,:imdb,:episode_count,:typeId)";
+            $sql = "INSERT INTO Shows (name, director, description,card_desc, studio,watchLink,slug,duration,date_aired,status,imdb,episode_count,typeId) VALUES (:name, :director, :description,:card_desc, :studio,:watchLink,:slug, :duration,:show_date,:status,:imdb,:episode_count,:typeId)";
             $stmt = $db->prepare($sql);
             $stmt->bindParam(':name', $name);
             $stmt->bindParam(':description', $description);
             $stmt->bindParam(':slug', $slug);
             $stmt->bindParam(':director', $director);
+            $stmt->bindParam(':studio', $studio);
+            $stmt->bindParam(':watchLink', $watchLink);
+            $stmt->bindParam(':duration', $duration);
+            $stmt->bindParam(':show_date', $show_date);
+            $stmt->bindParam(':status', $status);
+            $stmt->bindParam(':imdb', $imdb);
+            $stmt->bindParam(':episode_count', $epCount);
+            $stmt->bindParam(':card_desc', $card_desc);
+            $stmt->bindParam(':typeId', $typeid, PDO::PARAM_INT);
+        } else {
+            // Update existing product
+
+            $sql = "SELECT name,slug FROM Shows WHERE id=:id";
+            $stmt = $db->prepare($sql);
+            $stmt->bindParam(':id', $id);
+            $stmt->execute();
+            $res = $stmt->fetch();
+
+            if ($name != $res['name']) {
+                $slug = generateSlug($name);
+            } else {
+                $slug = $res['slug'];
+            }
+
+            //* Be carefull -- If any error happens in query BOOM
+            $sql = "UPDATE Shows SET name = :name,director=:director,watchLink=:watchLink,slug=:slug,card_desc=:card_desc, description = :description, duration = :duration, episode_count = :episode_count,typeId=:typeId,imdb=:imdb,status=:status,date_aired=:show_date,studio=:studio WHERE id =:id";
+            $stmt = $db->prepare($sql);
+            $stmt->bindParam(':id', $id);
+            $stmt->bindParam(':name', $name);
+            $stmt->bindParam(':description', $description);
+            $stmt->bindParam(':slug', $slug);
+            $stmt->bindParam(':director', $director);
+            $stmt->bindParam(':watchLink', $watchLink);
             $stmt->bindParam(':studio', $studio);
             $stmt->bindParam(':duration', $duration);
             $stmt->bindParam(':show_date', $show_date);
@@ -86,38 +123,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->bindParam(':imdb', $imdb);
             $stmt->bindParam(':episode_count', $epCount);
             $stmt->bindParam(':card_desc', $card_desc);
-            $stmt->bindParam(':typeId', $typeid,PDO :: PARAM_INT);
-            
-
-        } else {
-            // Update existing product
-
-            $sql = "SELECT name,slug FROM Products WHERE id=:id";
-            $stmt = $db->prepare($sql);
-            $stmt->bindParam(':id', $id);
-            $stmt->execute();
-            $res = $stmt->fetch();
-
-            if($name != $res['name']){
-                $slug = generateSlug($name);
-            }
-            else{
-                $slug = $res['slug'];
-            }
-
-            //* Be carefull -- If any error happens in query BOOM
-            $sql = "UPDATE Products SET name = :name,brand=:brand,slug=:slug,alt_desc=:alt_desc, product_code = :code, description = :description, price = :price,categoryId=:categoryId,subCategoryId=:subCategoryId WHERE id =:id";
-            $stmt = $db->prepare($sql);
-            $stmt->bindParam(':id', $id);
-            $stmt->bindParam(':name', $name);
-            $stmt->bindParam(':code', $code);
-            $stmt->bindParam(':brand', $brand);
-            $stmt->bindParam(':alt_desc', $alt_desc);
-            $stmt->bindParam(':description', $description);
-            $stmt->bindParam(':price', $price);
-            $stmt->bindParam(':slug', $slug);
-            $stmt->bindParam(':categoryId', $categoryId);
-            $stmt->bindParam(':subCategoryId', $subCategoryId,PDO::PARAM_INT);
+            $stmt->bindParam(':typeId', $typeid, PDO::PARAM_INT);
         }
 
         //! resimlere bagli olmaktan kurtardim :D if'den cikardim endi
@@ -127,8 +133,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute();
 
         //* GETTING ID
-        if(empty($id)){
-            $sql = "SELECT id FROM Products WHERE slug=:slug";
+        if (empty($id)) {
+            $sql = "SELECT id FROM Shows WHERE slug=:slug";
             $stmt = $db->prepare($sql);
             $stmt->bindParam(':slug', $slug);
             $stmt->execute();
@@ -138,138 +144,105 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         //? INSERTING || UPDATING COLORS SIZES
         //* INSERT OR UPDATE DOESNT MATTER I need iD
         $requireID;
-        if(empty($id)){
+        if (empty($id)) {
             $requireID = $realId;
-        }
-        else{
+        } else {
             $requireID = $id;
         }
         //! TURNED STRING INTO ARRAY
-        $colors = explode(',', $colors);
-        $sizes = explode(',', $sizes);
+        $categories = explode(',', $categories);
 
-        $colorCount = count($colors);
-        $sizeCount = count($sizes);
+        $categoryCount = count($categories);
         //UPDATE
-        if (isset($colors) && !empty($colors)) {
-            $sql = "DELETE FROM ProductColors WHERE productId =:id";
+        if (isset($categories) && !empty($categories)) {
+            $sql = "DELETE FROM ShowCategories WHERE showId =:id";
             $stmt = $db->prepare($sql);
             $stmt->bindParam(':id', $requireID);
             $stmt->execute();
 
-            for ($i = 0; $i < $colorCount; $i++) {
-                $sql = "INSERT INTO ProductColors (productId, colorId) VALUES (:productId, :colorId)";
+            for ($i = 0; $i < $categoryCount; $i++) {
+                $sql = "INSERT INTO ShowCategories (showId, categoryId) VALUES (:showId, :categoryId)";
                 $stmt = $db->prepare($sql);
-                $stmt->bindParam(':productId', $requireID);
-                $stmt->bindParam(':colorId', $colors[$i]);
-                $stmt->execute();
-            }
-        }
-        if (isset($sizes) && !empty($sizes)) {
-            $sql = "DELETE FROM ProductSizes WHERE productId =:id";
-            $stmt = $db->prepare($sql);
-            $stmt->bindParam(':id', $requireID);
-            $stmt->execute();
-
-            for ($i = 0; $i < $sizeCount; $i++) {
-                $sql = "INSERT INTO ProductSizes (productId, sizeId) VALUES (:productId, :sizeId)";
-                $stmt = $db->prepare($sql);
-                $stmt->bindParam(':productId', $requireID);
-                $stmt->bindParam(':sizeId', $sizes[$i]);
+                $stmt->bindParam(':showId', $requireID);
+                $stmt->bindParam(':categoryId', $categories[$i]);
                 $stmt->execute();
             }
         }
         //? INSERTING || UPDATING COLORS SIZES END
 
         // Handle file uploads
-        if (!empty($_FILES['images']['name'][0])) {
-            $fileCount = count($_FILES['images']['name']);
-            $maxFileSize = 3 * 1024 * 1024; // 3 MB in bytes
+        if (!empty($_FILES['image']['name'])) {
+            $maxFileSize = 1 * 1024 * 1024;
 
-            if(!empty($id)){
-                //? eger iceri girerse updatede
-                $sql = "DELETE FROM ProductImages WHERE product_id =:id";
-                $stmt = $db->prepare($sql);
-                $stmt->bindParam(':id', $id,PDO::PARAM_STR);
-                $stmt->execute();
+            $fileName = $_FILES['image']['name'];
+            $fileTmpName = $_FILES['image']['tmp_name'];
+            $fileType = $_FILES['image']['type'];
+            $fileError = $_FILES['image']['error'];
+            $fileSize = $_FILES['image']['size'];
+
+
+            // Check for file errors
+            if ($fileError !== UPLOAD_ERR_OK) {
+                throw new Exception('File upload error.');
             }
 
-            for ($i = 0; $i < $fileCount; $i++) {
-                $fileName = $_FILES['images']['name'][$i];
-                $fileTmpName = $_FILES['images']['tmp_name'][$i];
-                $fileType = $_FILES['images']['type'][$i];
-                $fileError = $_FILES['images']['error'][$i];
-                $fileSize = $_FILES['images']['size'][$i];
+            // Validate file extension
+            $fileExtension = getFileExtension($fileName);
+            if (!in_array($fileExtension, $allowedExtensions)) {
+                throw new Exception('Invalid file extension.');
+            }
 
+            // Validate file MIME type
+            if (!in_array($fileType, $allowedMimeTypes)) {
+                throw new Exception('Invalid file type.');
+            }
 
-                // Check for file errors
-                if ($fileError !== UPLOAD_ERR_OK) {
-                    throw new Exception('File upload error.');
-                }
+            if ($fileSize > $maxFileSize) {
+                throw new Exception('File size must be less than 1 MB.');
+            }
 
-                // Validate file extension
-                $fileExtension = getFileExtension($fileName);
-                if (!in_array($fileExtension, $allowedExtensions)) {
-                    throw new Exception('Invalid file extension.');
-                }
+            // Generate a unique file name with a random 3-character hash
+            $baseName = pathinfo($fileName, PATHINFO_FILENAME);
+            $randomHash = generateRandomHash();
+            $uniqueFileName = $baseName . '-' . $randomHash . '.' . $fileExtension;
+            // upload direction is different
+            //! DOSYA IZINLERINI FULLEMEN GEREK
+            $targetFilePath = "../../uploads/shows/" . basename($uniqueFileName);
 
-                // Validate file MIME type
-                if (!in_array($fileType, $allowedMimeTypes)) {
-                    throw new Exception('Invalid file type.');
-                }
-
-                if ($fileSize > $maxFileSize) {
-                    throw new Exception('File size must be less than 5 MB.');
-                }
-
-                // Generate a unique file name with a random 3-character hash
-                $baseName = pathinfo($fileName, PATHINFO_FILENAME);
-                $randomHash = generateRandomHash();
-                $uniqueFileName = $baseName . '-' . $randomHash . '.' . $fileExtension;
-                // upload direction is different
-                //! DOSYA IZINLERINI FULLEMEN GEREK
-                $targetFilePath = "../../uploads/products/" . basename($uniqueFileName);
-
-                // Move the file to the upload directory
-                if (move_uploaded_file($fileTmpName, $targetFilePath)) {
-                    // Optionally, save file info to database
-                    $sql = "INSERT INTO ProductImages (product_id, image_url) VALUES (:product_id, :image_url)";
-                    $stmt = $db->prepare($sql);
-                    $stmt->bindParam(':product_id', $id);
-                    //coded file name
-                    $codedFile ="/uploads/products/".$uniqueFileName;
-                    $stmt->bindParam(':image_url', $codedFile);
-                    $stmt->execute();
-                } else {
-                    throw new Exception('Failed to move uploaded file.');
-                }
+            // Move the file to the upload directory
+            if (move_uploaded_file($fileTmpName, $targetFilePath)) {
+                // Optionally, save file info to database
+                $sql = "UPDATE Shows SET image=:image_url WHERE id=:id";
+                $stmt = $db->prepare($sql);
+                $stmt->bindParam(':id', $requireID);
+                //coded file name
+                $codedFile = "/uploads/shows/" . $uniqueFileName;
+                $stmt->bindParam(':image_url', $codedFile);
+                $stmt->execute();
+            } else {
+                throw new Exception('Failed to move uploaded file.');
             }
         }
 
         //! resimlere bagli olmaktan kurtardim :D
         $db->commit();
 
-        
+
         // Update response on success
         $response['status'] = 'success';
         $response['message'] = 'Record processed successfully';
     } catch (Exception $e) {
         if (strpos($e->getMessage(), 'Duplicate entry') !== false) {
             $response['message'] = 'Product Code has to be unique';
-        }
-        elseif (strpos($e->getMessage(), 'Syntax error') !== false) {
+        } elseif (strpos($e->getMessage(), 'Syntax error') !== false) {
             // bu varsa kesin sorgu hatalıdır onu izle
             $response['message'] = 'Syntax error !';
-        }
-        elseif(strpos($e->getMessage(), 'datetime format') !== false){
+        } elseif (strpos($e->getMessage(), 'datetime format') !== false) {
             $response['message'] = 'Category Id wrong !';
-        }
-        elseif(strpos($e->getMessage(), 'a foreign key constraint fails') !== false){
+        } elseif (strpos($e->getMessage(), 'a foreign key constraint fails') !== false) {
             $response['message'] = 'Wrong id usage check again !';
-        }
-        
-        else{
-            $response['message'] = $e->getMessage().$id;
+        } else {
+            $response['message'] = $e->getMessage() . $id;
         }
     }
 
@@ -284,47 +257,34 @@ if ($_SERVER["REQUEST_METHOD"] == "DELETE") {
 
     if (json_last_error() === JSON_ERROR_NONE) {
         //! STRING id
-        $productId = filter_var($data['id'], FILTER_SANITIZE_STRING) ?? null;
-        $productId = trim($productId);
+        $showId = filter_var($data['id'], FILTER_SANITIZE_STRING) ?? null;
+        $showId = trim($showId);
 
 
-        if ($productId) {
-            $checkQuery = "SELECT COUNT(*) FROM Products WHERE id =:productId";
+        if ($showId) {
+            $checkQuery = "SELECT COUNT(*) FROM Shows WHERE id =:showId";
             $checkStmt = $db->prepare($checkQuery);
-            $checkStmt->bindParam(':productId', $productId, PDO::PARAM_STR);
+            $checkStmt->bindParam(':showId', $showId, PDO::PARAM_STR);
             $checkStmt->execute();
             $recordExists = $checkStmt->fetchColumn();
 
             if ($recordExists) {
                 $db->beginTransaction();
 
-                //* deleting product images
-                $sql1 = "DELETE FROM ProductImages WHERE product_id =:productId";
-                $stmt1 = $db->prepare($sql1);
-                $stmt1->bindParam(':productId', $productId, PDO::PARAM_STR);
-
-                //* deleting product sizes
-                $sql2 = "DELETE FROM ProductSizes WHERE productId =:productId";
-                $stmt2 = $db->prepare($sql2);
-                $stmt2->bindParam(':productId', $productId, PDO::PARAM_STR);
-
-                //* deleting product colors
-                $sql3 = "DELETE FROM ProductColors WHERE productId =:productId";
+                //* deleting product categories
+                $sql3 = "DELETE FROM ShowCategories WHERE showId =:showId";
                 $stmt3 = $db->prepare($sql3);
-                $stmt3->bindParam(':productId', $productId, PDO::PARAM_STR);
+                $stmt3->bindParam(':showId', $showId, PDO::PARAM_STR);
 
-                $sql = "DELETE FROM Products WHERE id = :productId";
+                $sql = "DELETE FROM Shows WHERE id = :showId";
                 $stmt = $db->prepare($sql);
 
-                $stmt->bindParam(':productId', $productId, PDO::PARAM_STR);
+                $stmt->bindParam(':showId', $showId, PDO::PARAM_STR);
 
                 try {
                     //! SIRA ONEMLI
-                    $stmt1->execute();
-                    $stmt2->execute();
                     $stmt3->execute();
                     $stmt->execute();
-
 
                     $db->commit();
 
@@ -338,8 +298,7 @@ if ($_SERVER["REQUEST_METHOD"] == "DELETE") {
                         'message' => $e->getMessage()
                     ];
                 }
-            }
-            else{
+            } else {
                 $response = [
                     'status' => 'error',
                     'message' => 'Record not found'
@@ -355,5 +314,3 @@ if ($_SERVER["REQUEST_METHOD"] == "DELETE") {
     echo json_encode($response);
     exit();
 }
-
-?>

@@ -1,0 +1,20 @@
+RewriteEngine On
+RewriteBase /anime/
+
+# Özel kullanıcı sayfası için yönlendirme (Öncelikli kural)
+RewriteRule ^users/([a-zA-Z0-9_-]+)$ /anime/user-page.php?username=$1 [L,QSA]
+
+# Ürün sayfası için genel yönlendirme kuralı
+RewriteRule ^s/([a-zA-Z0-9-]+)$ /anime/shows.php?slug=$1 [L,QSA]
+
+# .php uzantısı olmadan dosya erişimi (Yalnızca mevcut dosyalar için geçerli)
+RewriteCond %{REQUEST_FILENAME}\.php -f
+RewriteRule ^([^.]+)$ $1.php [NC,L]
+
+# Özel 404 sayfası
+ErrorDocument 404 /anime/404.php
+
+# Eğer yukarıdaki kurallardan hiçbiri geçerli değilse, 404 döndür
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /anime/404.php [L]

@@ -65,7 +65,7 @@ try {
 
                                         <tr>
                                             <td><?php echo $index + 1; ?></td>
-                                            <td><a style="text-decoration:none;color:gray;" href="<?php echo $dynamicUrl."/p/".htmlspecialchars($show['slug']); ?>" target="blank"><?php echo htmlspecialchars($show['name']); ?></a></td>
+                                            <td><a style="text-decoration:none;color:gray;" href="<?php echo $dynamicUrl."/s/".htmlspecialchars($show['slug']); ?>" target="blank"><?php echo htmlspecialchars($show['name']); ?></a></td>
                                             <td><?php echo htmlspecialchars($show['director']); ?></td>
                                             <td><?php echo htmlspecialchars($show['imdb']); ?></td>
                                             <td>

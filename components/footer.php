@@ -7,7 +7,7 @@
         <div class="row">
             <div class="col-lg-3">
                 <div class="footer__logo">
-                    <a href="<?php echo $footer_path ?>index.php"><img width="98" height="23" src="img/logo.png" alt=""></a>
+                    <a href="<?php echo $footer_path ?>index.php"><img width="98" height="23" src="<?php echo $footer_path ?>/img/logo.png" alt=""></a>
                 </div>
             </div>
             <div class="col-lg-6">

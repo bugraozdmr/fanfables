@@ -64,7 +64,7 @@ $typs = $stmt->fetchAll();
             <div class="col-lg-2">
                 <div class="header__logo">
                     <a href="<?php echo $header_path ?>/index.php">
-                        <img width="98" height="23" src="img/logo.png" alt="">
+                        <img width="98" height="23" src="<?php echo $header_path ?>/img/logo.png" alt="logo image">
                     </a>
                 </div>
             </div>
