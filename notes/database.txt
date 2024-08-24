@@ -34,3 +34,45 @@ CREATE TABLE UserRoles (
     FOREIGN KEY (UserId) REFERENCES users(id),
     FOREIGN KEY (RoleId) REFERENCES roles(id)
 );
+
+CREATE TABLE Categories (
+    id CHAR(36) NOT NULL DEFAULT (UUID()),
+    name VARCHAR(50) NOT NULL,
+    slug VARCHAR(50) NOT NULL UNIQUE,
+    categoryImage VARCHAR(255) ,
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE Types (
+    id INT AUTO_INCREMENT,
+    name VARCHAR(50) NOT NULL UNIQUE,
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE Shows (
+    id CHAR(36) NOT NULL DEFAULT (UUID()) PRIMARY KEY,
+    name VARCHAR(300) NOT NULL,
+    director VARCHAR(200) NOT NULL,
+    slug VARCHAR(100) NOT NULL UNIQUE,
+    studio VARCHAR(140),
+    date_aired VARCHAR(100),
+    status VARCHAR(60),
+    imdb VARCHAR(20),
+    episode_count VARCHAR(50),
+    duration VARCHAR(50),
+    description TEXT NOT NULL,
+    card_desc VARCHAR(400) NOT NULL,
+    typeId INT NOT NULL,
+    image VARCHAR(250),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (typeId) REFERENCES Types(id)
+);
+
+CREATE TABLE ShowCategories (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    showId CHAR(36) NOT NULL,
+    categoryId CHAR(36) NOT NULL,
+    FOREIGN KEY (showId) REFERENCES Shows(id),
+    FOREIGN KEY (categoryId) REFERENCES Categories(id)
+);

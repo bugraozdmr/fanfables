@@ -48,9 +48,15 @@ if (isset($_COOKIE['auth_token'])) {
         $rolee[] = $row['role'];
     }
 }
+
+//* GETTING TYPES
+$query = "SELECT * FROM Types";
+$stmt = $db->prepare($query);
+$stmt->execute();
+$typs = $stmt->fetchAll();
 ?>
 <style>
-.dropdown{position:relative;display:inline-flex;align-items:center}.custom-avatar{width:28px;height:28px;border-radius:50%;cursor:pointer;margin-left:0}.dropdown-menu{display:none;position:absolute;top:60px;right:0;background-color:#fff;box-shadow:0 8px 16px rgba(0,0,0,.2);border-radius:5px;z-index:1000;min-width:120px}.dropdown-menu a{color:#000;padding:8px 12px;font-size:14px;text-decoration:none;display:block}.dropdown-menu a:hover{background-color:#f1f1f1}.dropdown.show .dropdown-menu{display:block}
+.dropdown1{position:relative;display:inline-flex;align-items:center}.custom-avatar{width:28px;height:28px;border-radius:50%;cursor:pointer;margin-left:0}.dropdown1-menu{display:none;position:absolute;top:60px;right:0;background-color:#fff;box-shadow:0 8px 16px rgba(0,0,0,.2);border-radius:5px;z-index:1000;min-width:120px}.dropdown1-menu a{color:#000;padding:8px 12px;font-size:14px;text-decoration:none;display:block}.dropdown1-menu a:hover{background-color:#f1f1f1}.dropdown1.show .dropdown1-menu{display:block}
 </style>
 <header class="header">
     <div class="container">
@@ -67,16 +73,16 @@ if (isset($_COOKIE['auth_token'])) {
                     <nav class="header__menu mobile-menu">
                         <ul>
                             <li class="active"><a href="<?php echo $header_path ?>/index.php">Homepage</a></li>
-                            <li><a href="./categories.html">Categories <span class="arrow_carrot-down"></span></a>
+                            <li><a href=".#">Types <span class="arrow_carrot-down"></span></a>
                                 <ul class="dropdown">
-                                    <li><a href="./categories.html">Categories</a></li>
-                                    <li><a href="./anime-details.html">Anime Details</a></li>
-                                    <li><a href="./anime-watching.html">Anime Watching</a></li>
-                                    <li><a href="./blog-details.html">Blog Details</a></li>
-                                    <li><a href="<?php echo $header_path ?>/signup.php">Sign Up</a></li>
-                                    <li><a href="<?php echo $header_path ?>/login.php">Login</a></li>
+                                    <?php foreach($typs as $type) : ?>
+                                        <li>
+                                            <a href="<?php echo $header_path."/".$type['name'] ?>"><?php echo $type['name'] ?></a>
+                                        </li>
+                                    <?php endforeach ; ?>
                                 </ul>
                             </li>
+                            <li><a href="<?php echo $header_path ?>/categories.php">Categories</a></li>
                             <li><a href="./blog.html">Our Blog</a></li>
                             <li><a href="#">Contacts</a></li>
                         </ul>
@@ -87,9 +93,9 @@ if (isset($_COOKIE['auth_token'])) {
                 <div class="header__right">
                     <a href="#" class="search-switch"><span class="icon_search"></span></a>
                     <?php if (isset($token) && !empty($token)): ?>
-                        <a class="dropdown" href="#" onclick="return false;">
+                        <a class="dropdown1" href="#" onclick="return false;">
                             <img class="avatar custom-avatar" src="<?php echo $header_path.$img ?? $header_path . '/img/defuser.png' ?>" onclick="toggleDropdown()" />
-                            <div id="dropdownMenu" class="dropdown-menu">
+                            <div id="dropdownMenu" class="dropdown1-menu">
                                 <a href="<?php echo $header_path ?>/profile.php">Profile</a>
                                 <a href="<?php echo $header_path ?>/logout.php">Logout</a>
                             </div>
@@ -110,5 +116,5 @@ if (isset($_COOKIE['auth_token'])) {
 </header>
 
 <script>
-function toggleDropdown(){var e=document.getElementById("dropdownMenu");"block"===e.style.display?e.style.display="none":e.style.display="block"}window.onclick=function(e){if(!e.target.matches(".custom-avatar"))for(var n=document.getElementsByClassName("dropdown-menu"),o=0;o<n.length;o++){var t=n[o];"block"===t.style.display&&(t.style.display="none")}};
+function toggleDropdown(){var e=document.getElementById("dropdownMenu");"block"===e.style.display?e.style.display="none":e.style.display="block"}window.onclick=function(e){if(!e.target.matches(".custom-avatar"))for(var n=document.getElementsByClassName("dropdown1-menu"),o=0;o<n.length;o++){var t=n[o];"block"===t.style.display&&(t.style.display="none")}};
 </script>
