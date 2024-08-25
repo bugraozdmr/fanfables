@@ -74,6 +74,117 @@ foreach($mostRated as &$rrs2){
     $rrs2['commentCount'] = $ccount;
 }
 
+//* MOST ADDED TO WATH LATER
+$query = "SELECT 
+    s.name AS name,
+    s.image AS image,
+    s.slug AS slug,
+    t.name AS typeName,
+    COUNT(wl.showId) AS repetitionCount
+FROM 
+    WatchLater wl
+JOIN 
+    Shows s ON s.id = wl.showId
+JOIN 
+    Types t ON t.id = s.typeId
+GROUP BY 
+    wl.showId, s.name, s.image, t.name
+ORDER BY 
+    repetitionCount DESC
+LIMIT 4;
+";
+$stmt = $db->prepare($query);
+$stmt->execute();
+$watchLaterList = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Tüm sonuçları tutacak dizi
+$mostCommented = [];
+
+// Yıl, ay, hafta, gün sorgularının her birini çalıştırıp sonucu aynı diziye ekleyeceğiz
+$queries = [
+    'years' => "
+        SELECT 
+            s.id as id,
+            s.name AS name,
+            s.slug AS slug,
+            s.image AS image,
+            s.imdb AS imdb,
+            COUNT(c.id) AS commentCount
+        FROM 
+            Comments c
+        JOIN 
+            Shows s ON s.id = c.showId
+        WHERE 
+            YEAR(c.createdAt) = YEAR(CURDATE())
+        GROUP BY 
+            s.id, s.name, s.image, s.imdb
+        ORDER BY 
+            commentCount DESC
+        LIMIT 3;
+    ",
+    'month' => "
+        SELECT 
+            s.id as id,
+            s.name AS name,
+            s.slug AS slug,
+            s.image AS image,
+            s.imdb AS imdb,
+            COUNT(c.id) AS commentCount
+        FROM 
+            Comments c
+        JOIN 
+            Shows s ON s.id = c.showId
+        WHERE 
+            MONTH(c.createdAt) = MONTH(CURDATE())
+            AND YEAR(c.createdAt) = YEAR(CURDATE())
+        GROUP BY 
+            s.id, s.name, s.image, s.imdb
+        ORDER BY 
+            commentCount DESC
+        LIMIT 3;
+    ",
+    'week' => "
+        SELECT 
+            s.id as id,
+            s.name AS name,
+            s.slug AS slug,
+            s.image AS image,
+            s.imdb AS imdb,
+            COUNT(c.id) AS commentCount
+        FROM 
+            Comments c
+        JOIN 
+            Shows s ON s.id = c.showId
+        WHERE 
+            WEEK(c.createdAt, 1) = WEEK(CURDATE(), 1)
+            AND YEAR(c.createdAt) = YEAR(CURDATE())
+        GROUP BY 
+            s.id, s.name, s.image, s.imdb
+        ORDER BY 
+            commentCount DESC
+        LIMIT 3;
+    "
+];
+
+foreach ($queries as $dateType => $query) {
+    $stmt = $db->prepare($query);
+    $stmt->execute();
+    $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    foreach ($results as $result) {
+        $id = $result['id'];
+
+        if (isset($mostCommented[$id])) {
+            $mostCommented[$id]['date'][] = $dateType;
+        } else {
+            $mostCommented[$id] = $result;
+            $mostCommented[$id]['date'] = [$dateType];
+        }
+    }
+}
+
+// Dizi formatında çıktı
+$mostCommented = array_values($mostCommented);
 
 ?>
 
@@ -201,103 +312,47 @@ foreach($mostRated as &$rrs2){
                 <div class="product__sidebar">
                     <div class="product__sidebar__view">
                         <div class="section-title">
-                            <h5>Top Views</h5>
+                            <h5>Top Comments</h5>
                         </div>
                         <ul class="filter__controls">
-                            <li class="active" data-filter="*">Day</li>
+                            <li class="active" data-filter="*">All</li>
                             <li data-filter=".week">Week</li>
                             <li data-filter=".month">Month</li>
                             <li data-filter=".years">Years</li>
                         </ul>
                         <div class="filter__gallery">
-                            <div class="product__sidebar__view__item set-bg mix day years"
-                                data-setbg="img/sidebar/tv-1.jpg">
-                                <div class="ep">18 / ?</div>
-                                <div class="view"><i class="fa fa-eye"></i> 9141</div>
-                                <h5><a href="#">Boruto: Naruto next generations</a></h5>
-                            </div>
-                            <div class="product__sidebar__view__item set-bg mix month week"
-                                data-setbg="img/sidebar/tv-2.jpg">
-                                <div class="ep">18 / ?</div>
-                                <div class="view"><i class="fa fa-eye"></i> 9141</div>
-                                <h5><a href="#">The Seven Deadly Sins: Wrath of the Gods</a></h5>
-                            </div>
-                            <div class="product__sidebar__view__item set-bg mix week years"
-                                data-setbg="img/sidebar/tv-3.jpg">
-                                <div class="ep">18 / ?</div>
-                                <div class="view"><i class="fa fa-eye"></i> 9141</div>
-                                <h5><a href="#">Sword art online alicization war of underworld</a></h5>
-                            </div>
-                            <div class="product__sidebar__view__item set-bg mix years month"
-                                data-setbg="img/sidebar/tv-4.jpg">
-                                <div class="ep">18 / ?</div>
-                                <div class="view"><i class="fa fa-eye"></i> 9141</div>
-                                <h5><a href="#">Fate/stay night: Heaven's Feel I. presage flower</a></h5>
-                            </div>
-                            <div class="product__sidebar__view__item set-bg mix day"
-                                data-setbg="img/sidebar/tv-5.jpg">
-                                <div class="ep">18 / ?</div>
-                                <div class="view"><i class="fa fa-eye"></i> 9141</div>
-                                <h5><a href="#">Fate stay night unlimited blade works</a></h5>
-                            </div>
+                            <?php foreach($mostCommented as $mc) : ?>
+                                <?php  $classes = implode(' ', $mc['date']); ?>
+                                <div class="product__sidebar__view__item set-bg mix <?php echo $classes ?>"
+                                    data-setbg="<?php echo $index_path."/".$mc['image'] ?>">
+                                    <div class="ep"><?php echo $mc['imdb'] ?></div>
+                                    <div class="view"><i class="fa fa-comment"></i> <?php echo $mc['commentCount'] ?></div>
+                                    <h5><a href="<?php echo $index_path."/s/".$mc['slug'] ?>"><?php echo $mc['name'] ?></a></h5>
+                                </div>
+                            <?php endforeach; ?>
                         </div>
                     </div>
                     <div class="product__sidebar__comment">
                         <div class="section-title">
-                            <h5>New Comment</h5>
+                            <h5>Most added to watch later</h5>
                         </div>
-                        <div class="product__sidebar__comment__item">
-                            <div class="product__sidebar__comment__item__pic">
-                                <img src="img/sidebar/comment-1.jpg" alt="">
+                        <?php foreach($watchLaterList as $wlls) : ?>
+                            <div class="product__sidebar__comment__item">
+                                <div class="product__sidebar__comment__item__pic">
+                                    <img width="100" height="130" src="<?php echo $index_path."/".$wlls['image'] ?>" alt="watch later list image">
+                                </div>
+                                <div class="product__sidebar__comment__item__text">
+                                    <ul>
+                                        <li><?php echo $wlls['typeName'] ?></li>
+                                        <?php if (!empty($wlls['status']) && strtolower($wlls['status']) == 'active') : ?>
+                                            <li>Active</li>
+                                        <?php endif; ?>
+                                    </ul>
+                                    <h5><a href="<?php echo $index_path."/s/".$wlls['slug'] ?>"><?php echo $wlls['name'] ?></a></h5>
+                                    <span><i class="fa fa-heart-o"></i> <?php echo $wlls['repetitionCount'] ?></span>
+                                </div>
                             </div>
-                            <div class="product__sidebar__comment__item__text">
-                                <ul>
-                                    <li>Active</li>
-                                    <li>Movie</li>
-                                </ul>
-                                <h5><a href="#">The Seven Deadly Sins: Wrath of the Gods</a></h5>
-                                <span><i class="fa fa-eye"></i> 19.141 Viewes</span>
-                            </div>
-                        </div>
-                        <div class="product__sidebar__comment__item">
-                            <div class="product__sidebar__comment__item__pic">
-                                <img src="img/sidebar/comment-2.jpg" alt="">
-                            </div>
-                            <div class="product__sidebar__comment__item__text">
-                                <ul>
-                                    <li>Active</li>
-                                    <li>Movie</li>
-                                </ul>
-                                <h5><a href="#">Shirogane Tamashii hen Kouhan sen</a></h5>
-                                <span><i class="fa fa-eye"></i> 19.141 Viewes</span>
-                            </div>
-                        </div>
-                        <div class="product__sidebar__comment__item">
-                            <div class="product__sidebar__comment__item__pic">
-                                <img src="img/sidebar/comment-3.jpg" alt="">
-                            </div>
-                            <div class="product__sidebar__comment__item__text">
-                                <ul>
-                                    <li>Active</li>
-                                    <li>Movie</li>
-                                </ul>
-                                <h5><a href="#">Kizumonogatari III: Reiket su-hen</a></h5>
-                                <span><i class="fa fa-eye"></i> 19.141 Viewes</span>
-                            </div>
-                        </div>
-                        <div class="product__sidebar__comment__item">
-                            <div class="product__sidebar__comment__item__pic">
-                                <img src="img/sidebar/comment-4.jpg" alt="">
-                            </div>
-                            <div class="product__sidebar__comment__item__text">
-                                <ul>
-                                    <li>Active</li>
-                                    <li>Movie</li>
-                                </ul>
-                                <h5><a href="#">Monogatari Series: Second Season</a></h5>
-                                <span><i class="fa fa-eye"></i> 19.141 Viewes</span>
-                            </div>
-                        </div>
+                        <?php endforeach ; ?>
                     </div>
                 </div>
             </div>

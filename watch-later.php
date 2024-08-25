@@ -6,6 +6,34 @@ $watch_later_path = "/anime/";
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 
+function timeAgo($dateTime)
+{
+    // HARBI GELECEGE DONUS OLDU
+    $timezone = new DateTimeZone('Europe/Istanbul');
+    $now = new DateTime('now', $timezone);
+    $date = new DateTime($dateTime, $timezone);
+    $interval = $now->diff($date);
+
+    if ($date > $now) {
+        return $date->format('d.m.Y H:i:s');
+    }
+
+    if ($interval->y > 0) {
+        return $interval->y . ' years ago';
+    } elseif ($interval->m > 0) {
+        return $interval->m . ' months ago';
+    } elseif ($interval->d > 0) {
+        return $interval->d . ' days ago';
+    } elseif ($interval->h > 0) {
+        return $interval->h . ' hours ago';
+    } elseif ($interval->i > 0) {
+        return $interval->i . ' minutes ago';
+    } else {
+        return 'Now';
+    }
+}
+
+
 require __DIR__ . '/vendor/autoload.php';
 
 $jsonFile = __DIR__ . '/settings.json';
@@ -98,7 +126,7 @@ include __DIR__ . "/components/up-all.php"
                                 <?php endif; ?>
                             </ul>
                             <h5>
-                                <a href="<?php echo $dynamicUrl . "/s/" . $wll['slug'] ?>"><?php echo $wll['name'] ?></a>
+                                <a href="<?php echo $dynamicUrl . "/s/" . $wll['slug'] ?>"><?php echo $wll['name'] ?> - <?php echo "Added ".timeAgo($wll['createdAt']) ?></a>
                             </h5>
                         </div>
                     </div>

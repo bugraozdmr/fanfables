@@ -133,24 +133,38 @@ if (isset($_GET['slug'])) {
             }
 
             //* COMMENTS
+            //? PAGINATION
             $query = "SELECT COUNT(*) FROM Comments WHERE showId=:showId";
             $stmt = $db->prepare($query);
             $stmt->bindParam(':showId', $show['id']);
             $stmt->execute();
             $commentsCount = $stmt->fetchColumn();
 
+            $total_comments = $commentsCount;
 
-            //TODO DELETE COMMENT
+            $cpage_count = (int)ceil($total_comments / 6);
+            $commentPage = 1;
+            if(isset($_GET['cpage']) && $_GET['cpage']>0 && $cpage_count >= $_GET['cpage']){
+                $commentPage = (int)$_GET['cpage'];
+            }
+            $take = 6;
+            $skipComment = (int)(($commentPage - 1) * $take);
+
+
             $query = "SELECT c.id as id,c.comment as comment,u.username as username,u.image as userimage,c.createdAt as createdAt
             FROM Comments c
             JOIN users u ON u.id=c.userId
             WHERE showId=:showId
             ORDER BY c.createdAt DESC
+            LIMIT :take OFFSET :skip
             ";
             $stmt = $db->prepare($query);
             $stmt->bindParam(':showId', $show['id']);
+            $stmt->bindParam(':take', $take,PDO::PARAM_INT);
+            $stmt->bindParam(':skip', $skipComment,PDO::PARAM_INT);
             $stmt->execute();
             $comments = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
         } else {
             // TODO CHANGE 404
             header('Location: /anime/404.php');
@@ -173,8 +187,8 @@ include "./components/up-all.php";
         <div class="row">
             <div class="col-lg-12">
                 <div class="breadcrumb__links">
-                    <a href="./index.html"><i class="fa fa-home"></i> Home</a>
-                    <a href="./categories.html">Shows</a>
+                    <a href="<?php echo $show_path."/index.php" ?>"><i class="fa fa-home"></i> Home</a>
+                    <a href="<?php echo $show_path."/shows" ?>">Shows</a>
                     <span><?php echo $show['name'] ?></span>
                 </div>
             </div>
@@ -266,6 +280,48 @@ include "./components/up-all.php";
                             </div>
                         </div>
                     <?php endforeach; ?>
+                    <?php
+                    if($total_comments != 0){
+                        $max_pages_to_show = 5;
+                        $total_pages = $cpage_count;
+                        $current_page = $commentPage;
+
+                        $start = max(1, $current_page - floor($max_pages_to_show / 2));
+                        $end = min($total_pages, $current_page + floor($max_pages_to_show / 2));
+
+                        if ($end - $start + 1 < $max_pages_to_show) {
+                            if ($start == 1) {
+                                $end = min($total_pages, $end + ($max_pages_to_show - ($end - $start + 1)));
+                            } else {
+                                $start = max(1, $start - ($max_pages_to_show - ($end - $start + 1)));
+                            }
+                        }
+                    }
+                    ?>
+                    <?php if($total_comments != 0) : ?>
+                        <div class="product__pagination">
+                            <?php if ($start > 1) : ?>
+                                    <a href="<?php echo $dynamicUrl."/s/".$show['slug']."?cpage=1" ?>">1</a>
+                                <?php if ($start > 2) : ?>
+                                    <a href="#"><span>...</span></a>
+                                <?php endif; ?>
+                            <?php endif; ?>
+                            <!-- Middle pages -->
+                            <?php for ($i = $start; $i <= $end; $i++) : ?>
+                                <a class="<?php echo ($i == $current_page) ? 'current-page' : '' ?>" href="<?php echo $dynamicUrl."/s/".$show['slug']."?cpage=" . $i ?>"><?php echo $i ?></a>
+                            <?php endfor; ?>
+                            <!-- Last page -->
+                            <?php if ($end < $total_pages) : ?>
+                                <?php if ($end < $total_pages - 1) : ?>
+                                    <a href="#"><span>...</span></a>
+                                <?php endif; ?>
+                                <a href="<?php echo $dynamicUrl."/s/".$show['slug']."?cpage=" . $total_pages  ?>"><?php echo $total_pages ?></a>
+                            <?php endif; ?>
+                            <?php if($current_page != $total_pages) : ?>
+                                <a href="<?php echo $dynamicUrl."/s/".$show['slug']."?cpage=" . ($current_page + 1) ?>"><i class="fa fa-angle-double-right"></i></a>
+                            <?php endif; ?>
+                        </div>
+                    <?php endif ; ?>
                 </div>
                 <?php if ($loggedIn) : ?>
                     <div class="anime__details__form">

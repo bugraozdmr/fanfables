@@ -84,7 +84,7 @@ $typs = $stmt->fetchAll();
                                     <?php endforeach ; ?>
                                 </ul>
                             </li>
-                            <li><a href="<?php echo $header_path ?>/categories.php">Categories</a></li>
+                            <li><a href="<?php echo $header_path ?>/all-categories.php">Categories</a></li>
                             <li><a href="./blog.html">Our Blog</a></li>
                             <li><a href="<?php echo $header_path ?>/watch-later.php">Watch Later</a></li>
                         </ul>
