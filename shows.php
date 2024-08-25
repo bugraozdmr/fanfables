@@ -338,7 +338,7 @@ include "./components/up-all.php";
                         }
                     }
                     ?>
-                    <?php if ($total_comments != 0 && floor($total_comments / 6) != 0) : ?>
+                    <?php if ($total_comments != 0 && floor($total_comments / 6) != 0 && !(floor($total_comments / 6) == 1 && $total_comments % 6 == 0)) : ?>
                         <div class="product__pagination">
                             <?php if ($start > 1) : ?>
                                 <a href="<?php echo $dynamicUrl . "/s/" . $show['slug'] . "?cpage=1" ?>">1</a>
