@@ -99,7 +99,7 @@ else {
 
 $total_shows = $showCount;
 //* CHANGE
-$divide = 2;
+$divide = 15;
 if(isset($_GET['c']) && $_GET['c'] > 0 && ($_GET['c']==10 || $_GET['c']==20)){
     $divide = $_GET['c'];
 }

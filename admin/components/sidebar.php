@@ -85,19 +85,14 @@
         <li class="nav-item">
           <a data-bs-toggle="collapse" href="#sidebarLayouts">
             <i class="fas fa-th-list"></i>
-            <p>Site Settings</p>
+            <p>Common Settings</p>
             <span class="caret"></span>
           </a>
           <div class="collapse" id="sidebarLayouts">
             <ul class="nav nav-collapse">
               <li>
-                <a href="/anime/admin/caremode.php">
-                  <span class="sub-item">Site in Care Mode</span>
-                </a>
-              </li>
-              <li>
-                <a href="/anime/admin/social-contact.php">
-                  <span class="sub-item">Socials and Contact Info</span>
+                <a href="/anime/admin/users.php">
+                  <span class="sub-item">Edit Users</span>
                 </a>
               </li>
             </ul>

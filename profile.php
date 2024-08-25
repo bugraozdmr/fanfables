@@ -31,7 +31,7 @@ if (isset($_COOKIE['auth_token'])) {
         $decoded = JWT::decode($token, new Key($key, 'HS256'));
         $TokenUsername = $decoded->sub;
 
-        $query = "SELECT id,username,name,email,image FROM users WHERE username=:username";
+        $query = "SELECT id,username,name,email,image,bannerImage FROM users WHERE username=:username";
         $stmt = $db->prepare($query);
         $stmt->bindParam(':username', $TokenUsername);
         $stmt->execute();
@@ -88,22 +88,42 @@ include __DIR__ . "/components/up-all.php"
                             </div>
                         <?php else : ?>
                             <div class="image-preview">
-                                <p>No image uploaded</p>
+                                <p>No profile image uploaded</p>
                             </div>
                         <?php endif; ?>
-                        <div class="input__item">
+                        <?php if (isset($usrRes['bannerImage']) && !empty($usrRes['bannerImage'])) : ?>
+                            <div class="image-preview">
+                                <img src="<?php echo $profile_path.htmlspecialchars($usrRes['bannerImage']); ?>" alt="Profile Image">
+                            </div>
+                        <?php else : ?>
+                            <div class="image-preview">
+                                <p>No profile banner image uploaded</p>
+                            </div>
+                        <?php endif; ?>
+                        <div class="input__item" style="width: 100% !important;">
                             <input type="file" id="profile-image" accept="image/*">
                             <span class="icon_camera_alt"></span>
-                            <label for="profile-image" class="image-upload-label">Upload Image</label>
+                            <label for="profile-image" class="image-upload-label">Upload User Profile Image</label>
+                        </div>
+                        <div class="input__item" style="width: 100% !important;">
+                            <input type="file" id="banner-image" accept="image/*">
+                            <span class="icon_camera"></span>
+                            <label for="banner-image" class="image-upload-label">Upload Banner Image</label>
                         </div>
                         <input type="hidden" id="id" value="<?php echo $usrRes['id'] ?>">
-                        <div class="input__item">
+                        <div class="input__item" style="width: 100% !important;">
                             <input type="text" id="username" placeholder="Username" value="<?php echo $usrRes['username'] ?? '' ?>">
                             <span class="icon_plus_alt2"></span>
                         </div>
-                        <div class="input__item">
+                        <div class="input__item" style="width: 100% !important;">
                             <input type="text" id="name" placeholder="Name" value="<?php echo $usrRes['name'] ?? '' ?>">
                             <span class="icon_cloud"></span>
+                        </div>
+                        <div class="col-lg-12">
+                            <label for="description" style="color:white">About You</label>
+                            <textarea style="width: 100%" rows="6" type="text" id="description" placeholder="Description">
+                            <?php echo $usrRes['description'] ?? '' ?>
+                            </textarea>
                         </div>
                         <div class="col-lg-12">
                             <span id="error-message" class="text-danger d-none"></span>
@@ -152,19 +172,50 @@ include __DIR__ . "/components/up-all.php"
         }
     });
 
+    document.getElementById('banner-image').addEventListener('change', function() {
+        var imageInput = this;
+        var fileCount = imageInput.files.length;
+
+        if (fileCount > 1) {
+            alert("You can only upload 1 image.");
+            imageInput.value = "";
+        }
+
+        var file = imageInput.files[0];
+        var maxFileSize = 1 * 1024 * 1024;
+        var allowedExtensions = ['jpg', 'jpeg', 'png', 'webp'];
+        var allowedMimeTypes = ['image/jpeg', 'image/png', 'image/webp'];
+        var fileExtension = file.name.split('.').pop().toLowerCase();
+        var fileType = file.type;
+
+        if (!allowedExtensions.includes(fileExtension) || !allowedMimeTypes.includes(fileType)) {
+            alert("Invalid file type or extension.");
+            imageInput.value = "";
+        }
+
+        if (file.size > maxFileSize) {
+            alert("File size must be less than 1 MB.");
+            imageInput.value = "";
+        }
+    });
+
     document.getElementById('profile-form').addEventListener('submit', function(event) {
         event.preventDefault();
 
         var name = document.getElementById('name').value;
         var username = document.getElementById('username').value;
         var id = document.getElementById('id').value;
+        var description = document.getElementById('description').value;
         var imageInput = document.getElementById('profile-image');
+        var bannerImageInput = document.getElementById('banner-image');
 
         var formData = new FormData();
         formData.append('name', name);
         formData.append('username', username);
         formData.append('id', id);
+        formData.append('description', description);
         formData.append('image', imageInput.files[0]);
+        formData.append('bannerImage', bannerImageInput.files[0]);
 
         fetch('/anime/actions/profile/edit-profile.php', {
                 method: 'POST',
