@@ -13,7 +13,6 @@ $dynamicUrl = isset($data['dynamic_url']) ? $data['dynamic_url'] : '';
 $index_path = "/anime";
 
 include __DIR__ . '/actions/connect.php';
-//TODO veritabanı boşşsa kontrolu
 
 //* Random GET
 $query = "SELECT s.id as id,s.name as name,s.image as image,s.slug as slug,s.imdb as imdb,t.name as type
@@ -32,7 +31,14 @@ foreach($randomShows as &$rrs){
     $stmt->execute();
     $ccount = $stmt->fetchColumn();
 
+    $query = "SELECT COUNT(*) FROM Characters WHERE showId=:showId";
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(':showId', $rrs1['id']);
+    $stmt->execute();
+    $ccountt = $stmt->fetchColumn();
+
     $rrs['commentCount'] = $ccount;
+    $rrs['characterCount'] = $ccountt;
 }
 
 
@@ -52,7 +58,14 @@ foreach($recentShows as &$rrs1){
     $stmt->execute();
     $ccount = $stmt->fetchColumn();
 
+    $query = "SELECT COUNT(*) FROM Characters WHERE showId=:showId";
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(':showId', $rrs1['id']);
+    $stmt->execute();
+    $ccountt = $stmt->fetchColumn();
+
     $rrs1['commentCount'] = $ccount;
+    $rrs1['characterCount'] = $ccountt;
 }
 
 //* MOST IMDB
@@ -71,7 +84,14 @@ foreach($mostRated as &$rrs2){
     $stmt->execute();
     $ccount = $stmt->fetchColumn();
 
+    $query = "SELECT COUNT(*) FROM Characters WHERE showId=:showId";
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(':showId', $rrs1['id']);
+    $stmt->execute();
+    $ccountt = $stmt->fetchColumn();
+
     $rrs2['commentCount'] = $ccount;
+    $rrs2['characterCount'] = $ccountt;
 }
 
 //* MOST ADDED TO WATH LATER
@@ -202,7 +222,7 @@ $mostCommented = array_values($mostCommented);
                         </div>
                         <div class="col-lg-4 col-md-4 col-sm-4">
                             <div class="btn__all">
-                                <a href="#" class="primary-btn">View All <span class="arrow_right"></span></a>
+                                <a href="<?php echo $index_path."/all-shows.php" ?>" class="primary-btn">View All <span class="arrow_right"></span></a>
                             </div>
                         </div>
                     </div>
@@ -215,7 +235,7 @@ $mostCommented = array_values($mostCommented);
                                             <div class="ep"><?php echo $rands['imdb'] ?></div>
                                         <?php endif; ?>
                                         <div class="comment"><i class="fa fa-comments"></i> <?php echo $rands['commentCount'] ?></div>
-                                        <div class="view"><i class="fa fa-eye"></i> Character count TODO</div>
+                                        <div class="view"><i class="fa fa-users"></i> <?php echo $rands['characterCount'] ?> </div>
                                     </div>
                                     <div class="product__item__text">
                                         <ul>
@@ -240,7 +260,7 @@ $mostCommented = array_values($mostCommented);
                         </div>
                         <div class="col-lg-4 col-md-4 col-sm-4">
                             <div class="btn__all">
-                                <a href="#" class="primary-btn">View All <span class="arrow_right"></span></a>
+                                <a href="<?php echo $index_path."/all-shows.php" ?>" class="primary-btn">View All <span class="arrow_right"></span></a>
                             </div>
                         </div>
                     </div>
@@ -253,7 +273,7 @@ $mostCommented = array_values($mostCommented);
                                             <div class="ep"><?php echo $mr['imdb'] ?></div>
                                         <?php endif; ?>
                                         <div class="comment"><i class="fa fa-comments"></i> <?php echo $mr['commentCount'] ?></div>
-                                        <div class="view"><i class="fa fa-eye"></i> Character count TODO</div>
+                                        <div class="view"><i class="fa fa-users"></i> <?php echo $mr['characterCount'] ?></div>
                                     </div>
                                     <div class="product__item__text">
                                         <ul>
@@ -278,7 +298,7 @@ $mostCommented = array_values($mostCommented);
                         </div>
                         <div class="col-lg-4 col-md-4 col-sm-4">
                             <div class="btn__all">
-                                <a href="#" class="primary-btn">View All <span class="arrow_right"></span></a>
+                                <a href="<?php echo $index_path."/all-shows.php" ?>" class="primary-btn">View All <span class="arrow_right"></span></a>
                             </div>
                         </div>
                     </div>
@@ -291,7 +311,7 @@ $mostCommented = array_values($mostCommented);
                                             <div class="ep"><?php echo $rs['imdb'] ?></div>
                                         <?php endif; ?>
                                         <div class="comment"><i class="fa fa-comments"></i> <?php echo $rs['commentCount'] ?></div>
-                                        <div class="view"><i class="fa fa-eye"></i> Character count TODO</div>
+                                        <div class="view"><i class="fa fa-users"></i> <?php echo $rs['characterCount'] ?></div>
                                     </div>
                                     <div class="product__item__text">
                                         <ul>

@@ -96,3 +96,13 @@ CREATE TABLE WatchLater (
     FOREIGN KEY (userId) REFERENCES Users(id) ON DELETE CASCADE,
     FOREIGN KEY (showId) REFERENCES Shows(id) ON DELETE CASCADE
 );
+
+CREATE TABLE Characters (
+    id CHAR(36) NOT NULL DEFAULT (UUID()) PRIMARY KEY,
+    name VARCHAR(120) NOT NULL,
+    starring VARCHAR(150) NOT NULL,
+    description VARCHAR(300) NOT NULL,
+    showId CHAR(36) NOT NULL,
+    image VARCHAR(250),
+    FOREIGN KEY (showId) REFERENCES Shows(id)
+);

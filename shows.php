@@ -144,7 +144,7 @@ if (isset($_GET['slug'])) {
 
             $cpage_count = (int)ceil($total_comments / 6);
             $commentPage = 1;
-            if(isset($_GET['cpage']) && $_GET['cpage']>0 && $cpage_count >= $_GET['cpage']){
+            if (isset($_GET['cpage']) && $_GET['cpage'] > 0 && $cpage_count >= $_GET['cpage']) {
                 $commentPage = (int)$_GET['cpage'];
             }
             $take = 6;
@@ -160,11 +160,26 @@ if (isset($_GET['slug'])) {
             ";
             $stmt = $db->prepare($query);
             $stmt->bindParam(':showId', $show['id']);
-            $stmt->bindParam(':take', $take,PDO::PARAM_INT);
-            $stmt->bindParam(':skip', $skipComment,PDO::PARAM_INT);
+            $stmt->bindParam(':take', $take, PDO::PARAM_INT);
+            $stmt->bindParam(':skip', $skipComment, PDO::PARAM_INT);
             $stmt->execute();
             $comments = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+            //* WATCH LATER CHECK
+            $query = "SELECT id FROM WatchLater WHERE userId=:userId AND showId=:sid";
+            $stmt = $db->prepare($query);
+            $stmt->bindParam(':userId', $userId);
+            $stmt->bindParam(':sid', $show['id']);
+            $stmt->execute();
+            $is_fav = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+
+            //* CHARACTERS
+            $query = "SELECT * FROM Characters WHERE showId=:sid";
+            $stmt = $db->prepare($query);
+            $stmt->bindParam(':sid', $show['id']);
+            $stmt->execute();
+            $characters = $stmt->fetchAll(PDO::FETCH_ASSOC);
         } else {
             // TODO CHANGE 404
             header('Location: /anime/404.php');
@@ -182,13 +197,15 @@ if (isset($_GET['slug'])) {
 include "./components/up-all.php";
 ?>
 
+<link rel="stylesheet" href="/anime/css/image-card.css">
+
 <div class="breadcrumb-option">
     <div class="container">
         <div class="row">
             <div class="col-lg-12">
                 <div class="breadcrumb__links">
-                    <a href="<?php echo $show_path."/index.php" ?>"><i class="fa fa-home"></i> Home</a>
-                    <a href="<?php echo $show_path."/shows" ?>">Shows</a>
+                    <a href="<?php echo $show_path . "/index.php" ?>"><i class="fa fa-home"></i> Home</a>
+                    <a href="<?php echo $show_path . "/shows" ?>">Shows</a>
                     <span><?php echo $show['name'] ?></span>
                 </div>
             </div>
@@ -244,10 +261,18 @@ include "./components/up-all.php";
                         </div>
                         <div class="anime__details__btn">
                             <?php if (isset($token) && !empty($token)) : ?>
-                                <a href="#" class="follow-btn favorite-button"
-                                    data-id="<?php echo $show['slug']; ?>">
-                                    <i class="fa fa-heart-o"></i> Watch Later
-                                </a>
+                                <?php if(!empty($is_fav)) : ?>
+                                    <a href="<?php echo $show_path."/watch-later.php" ?>" class="follow-btn"
+                                        data-id="<?php echo $show['slug']; ?>">
+                                        <i class="fa fa-heart-o"></i> Watch Later
+                                    </a>
+                                <?php else : ?>
+                                    <a href="#" class="follow-btn favorite-button"
+                                        data-id="<?php echo $show['slug']; ?>">
+                                        <i class="fa fa-heart-o"></i> Watch Later
+                                    </a>
+                                <?php endif; ?>
+                                
                             <?php endif; ?>
                             <?php if (!empty($show['watchLink'])) : ?>
                                 <a target="_blank" href="<?php echo $show['watchLink'] ?>" class="watch-btn"><span>Watch Now</span> <i
@@ -260,9 +285,24 @@ include "./components/up-all.php";
         </div>
         <div class="row">
             <div class="col-lg-8 col-md-8">
+                <div class="row mb-3">
+                    <?php foreach($characters as $cssq) : ?>
+                        <div class="col-lg-4 col-md-6">
+                            <div class="profile-card-4 text-center"><img src="<?php echo $show_path.$cssq['image'] ?>">
+                                <div class="profile-content">
+                                    <div class="profile-name">
+                                        <h6><?php echo $cssq['name'] ?></h6>
+                                        <p>@<?php echo $cssq['starring'] ?></p>
+                                    </div>
+                                    <div class="profile-description"><?php echo $cssq['description'] ?></div>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endforeach ; ?>
+                </div>
                 <div class="anime__details__review">
                     <div class="section-title">
-                        <h5>Reviews</h5>
+                        <h5><?php echo count($comments) != 0 ? "Reviews" : 'There is no review yet' ?></h5>
                     </div>
                     <?php foreach ($comments as $comment) : ?>
                         <div class="anime__review__item">
@@ -281,7 +321,7 @@ include "./components/up-all.php";
                         </div>
                     <?php endforeach; ?>
                     <?php
-                    if($total_comments != 0){
+                    if ($total_comments != 0) {
                         $max_pages_to_show = 5;
                         $total_pages = $cpage_count;
                         $current_page = $commentPage;
@@ -298,30 +338,30 @@ include "./components/up-all.php";
                         }
                     }
                     ?>
-                    <?php if($total_comments != 0) : ?>
+                    <?php if ($total_comments != 0 && floor($total_comments / 6) != 0) : ?>
                         <div class="product__pagination">
                             <?php if ($start > 1) : ?>
-                                    <a href="<?php echo $dynamicUrl."/s/".$show['slug']."?cpage=1" ?>">1</a>
+                                <a href="<?php echo $dynamicUrl . "/s/" . $show['slug'] . "?cpage=1" ?>">1</a>
                                 <?php if ($start > 2) : ?>
                                     <a href="#"><span>...</span></a>
                                 <?php endif; ?>
                             <?php endif; ?>
                             <!-- Middle pages -->
                             <?php for ($i = $start; $i <= $end; $i++) : ?>
-                                <a class="<?php echo ($i == $current_page) ? 'current-page' : '' ?>" href="<?php echo $dynamicUrl."/s/".$show['slug']."?cpage=" . $i ?>"><?php echo $i ?></a>
+                                <a class="<?php echo ($i == $current_page) ? 'current-page' : '' ?>" href="<?php echo $dynamicUrl . "/s/" . $show['slug'] . "?cpage=" . $i ?>"><?php echo $i ?></a>
                             <?php endfor; ?>
                             <!-- Last page -->
                             <?php if ($end < $total_pages) : ?>
                                 <?php if ($end < $total_pages - 1) : ?>
                                     <a href="#"><span>...</span></a>
                                 <?php endif; ?>
-                                <a href="<?php echo $dynamicUrl."/s/".$show['slug']."?cpage=" . $total_pages  ?>"><?php echo $total_pages ?></a>
+                                <a href="<?php echo $dynamicUrl . "/s/" . $show['slug'] . "?cpage=" . $total_pages  ?>"><?php echo $total_pages ?></a>
                             <?php endif; ?>
-                            <?php if($current_page != $total_pages) : ?>
-                                <a href="<?php echo $dynamicUrl."/s/".$show['slug']."?cpage=" . ($current_page + 1) ?>"><i class="fa fa-angle-double-right"></i></a>
+                            <?php if ($current_page != $total_pages) : ?>
+                                <a href="<?php echo $dynamicUrl . "/s/" . $show['slug'] . "?cpage=" . ($current_page + 1) ?>"><i class="fa fa-angle-double-right"></i></a>
                             <?php endif; ?>
                         </div>
-                    <?php endif ; ?>
+                    <?php endif; ?>
                 </div>
                 <?php if ($loggedIn) : ?>
                     <div class="anime__details__form">
@@ -341,7 +381,7 @@ include "./components/up-all.php";
                 <?php else : ?>
                     <div class="anime__details__form">
                         <div class="section-title">
-                            <h5>If you want to comment first <a style="color:darkred;" href="<?php echo $show_path."/login.php" ?>">Login</a></h5>
+                            <h5>If you want to comment first <a style="color:darkred;" href="<?php echo $show_path . "/login.php" ?>">Login</a></h5>
                         </div>
                     </div>
                 <?php endif; ?>
@@ -468,7 +508,27 @@ include "./components/up-all.php";
                 });
         });
 
-        document.addEventListener("DOMContentLoaded",(function(){document.querySelectorAll(".favorite-button").forEach((function(e){e.addEventListener("click",(function(e){e.preventDefault();var t={slug:this.getAttribute("data-id")};fetch("/anime/actions/common/add-favs.php",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(t)}).then((e=>e.json())).then((e=>{"success"===e.status?window.location.reload():console.log(e.message)})).catch((e=>{console.error("Error:",e)}))}))}))}));
+        document.addEventListener("DOMContentLoaded", (function() {
+            document.querySelectorAll(".favorite-button").forEach((function(e) {
+                e.addEventListener("click", (function(e) {
+                    e.preventDefault();
+                    var t = {
+                        slug: this.getAttribute("data-id")
+                    };
+                    fetch("/anime/actions/common/add-favs.php", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(t)
+                    }).then((e => e.json())).then((e => {
+                        "success" === e.status ? window.location.reload() : console.log(e.message)
+                    })).catch((e => {
+                        console.error("Error:", e)
+                    }))
+                }))
+            }))
+        }));
     </script>
 <?php endif; ?>
 

@@ -19,7 +19,17 @@ foreach($cattegories as &$ccs){
     $stmt->execute();
     $count = $stmt->fetchColumn();
 
+    $query = "SELECT COUNT(*) 
+    FROM Characters c 
+    JOIN ShowCategories sc ON sc.showId=c.showId
+    WHERE sc.categoryId=:cid";
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(':cid', $cattId);
+    $stmt->execute();
+    $ccountt = $stmt->fetchColumn();
+
     $ccs['showCount'] = $count;
+    $ccs['CharacterCount'] = $ccountt;
 }
 
 include __DIR__ . "/components/up-all.php";
@@ -57,15 +67,14 @@ include __DIR__ . "/components/up-all.php";
                                 <div class="product__sidebar__view__item set-bg mix month week"
                                     data-setbg="<?php echo $all_cat_path.$cats['categoryImage'] ?>">
                                     <div class="ep"><?php echo $cats['showCount']." SHOWS" ?></div>
-                                    <div class="view"><i class="fa fa-eye"></i> Chracter count</div>
-                                    <h5><a href="<?php echo $all_cat_path."/".$cats['slug'] ?>"><?php echo $cats['name'] ?></a></h5>
+                                    <div class="view"><i class="fa fa-users"></i> <?php echo $cats['CharacterCount'] ?></div>
+                                    <h5><a href="<?php echo $all_cat_path."/c/".$cats['slug'] ?>"><?php echo $cats['name'] ?></a></h5>
                                 </div>
                             </div>
                         <?php endforeach; ?>
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 </section>

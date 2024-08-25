@@ -9,7 +9,7 @@ $hero_path = "/anime";
 include __DIR__ . '/../../actions/connect.php';
 
 //* RECENTLY ADDED
-$query = "SELECT s.name as name,s.image as image,s.description as description,s.slug as slug,t.name as type
+$query = "SELECT s.name as name,s.image as image,s.card_desc as description,s.slug as slug,t.name as type
 FROM SHOWS s
 JOIN Types t ON t.id=s.typeId
 ORDER BY s.created_at DESC
