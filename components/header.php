@@ -50,15 +50,9 @@ if (isset($_COOKIE['auth_token'])) {
         $rolee[] = $row['role'];
     }
 }
-
-//* GETTING TYPES
-$query = "SELECT * FROM Types";
-$stmt = $db->prepare($query);
-$stmt->execute();
-$typs = $stmt->fetchAll();
 ?>
 <style>
-.dropdown1{position:relative;display:inline-flex;align-items:center}.custom-avatar{width:28px;height:28px;border-radius:50%;cursor:pointer;margin-left:0}.dropdown1-menu{display:none;position:absolute;top:60px;right:0;background-color:#fff;box-shadow:0 8px 16px rgba(0,0,0,.2);border-radius:5px;z-index:1000;min-width:120px}.dropdown1-menu a{color:#000;padding:8px 12px;font-size:14px;text-decoration:none;display:block}.dropdown1-menu a:hover{background-color:#f1f1f1}.dropdown1.show .dropdown1-menu{display:block}
+.dropdown1{position:relative;display:inline-block}.custom-avatar{width:28px;height:28px;border-radius:50%;cursor:pointer}.dropdown1-menu{display:none;position:absolute;top:35px;right:0;background-color:#fff;box-shadow:0 4px 8px rgba(0,0,0,.15);border-radius:4px;z-index:1000;min-width:140px;padding:8px 0}.dropdown1-menu a{color:#333;padding:6px 10px;font-size:13px;text-decoration:none;display:block;text-align:left;white-space:nowrap}.dropdown1-menu a:hover{background-color:#f1f1f1}.dropdown1.show .dropdown1-menu{display:block}
 </style>
 <header class="header">
     <div class="container">
@@ -75,15 +69,6 @@ $typs = $stmt->fetchAll();
                     <nav class="header__menu mobile-menu">
                         <ul>
                             <li class="active"><a href="<?php echo $header_path ?>/index.php">Homepage</a></li>
-                            <li><a href=".#">Types <span class="arrow_carrot-down"></span></a>
-                                <ul class="dropdown">
-                                    <?php foreach($typs as $type) : ?>
-                                        <li>
-                                            <a href="<?php echo $header_path."/".$type['name'] ?>"><?php echo $type['name'] ?></a>
-                                        </li>
-                                    <?php endforeach ; ?>
-                                </ul>
-                            </li>
                             <li><a href="<?php echo $header_path ?>/all-categories.php">Categories</a></li>
                             <li><a href="./blog.html">Our Blog</a></li>
                             <?php if(isset($token) && !empty($token)) : ?>

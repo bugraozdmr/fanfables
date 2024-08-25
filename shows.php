@@ -175,6 +175,12 @@ if (isset($_GET['slug'])) {
 
 
             //* CHARACTERS
+            $query = "SELECT COUNT(*) FROM Characters WHERE showId=:sid";
+            $stmt = $db->prepare($query);
+            $stmt->bindParam(':sid', $show['id']);
+            $stmt->execute();
+            $charCohnt = $stmt->fetchColumn();
+
             $query = "SELECT * FROM Characters WHERE showId=:sid";
             $stmt = $db->prepare($query);
             $stmt->bindParam(':sid', $show['id']);
@@ -220,7 +226,7 @@ include "./components/up-all.php";
                 <div class="col-lg-3">
                     <div class="anime__details__pic set-bg" data-setbg="<?php echo $show_path . $show['image'] ?>">
                         <div class="comment"><i class="fa fa-comments"></i> <?php echo $commentsCount ?></div>
-                        <div class="view"><i class="fa fa-eye"></i> 9141</div>
+                        <div class="view"><i class="fa fa-users"></i> <?php echo $charCohnt ?></div>
                     </div>
                 </div>
                 <div class="col-lg-9">

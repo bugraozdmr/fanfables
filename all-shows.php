@@ -24,6 +24,10 @@ $types = $stmt->fetchAll();
 
 
 //* ALL SHOWS FILTERED
+if(isset($_GET['query']) && !empty($_GET['query'])){
+    $sanitized_query = filter_var($_GET['query'],FILTER_SANITIZE_STRING);
+}
+
 if(isset($_GET['category']) && !empty($_GET['category'])){
     $sanitized = filter_var($_GET['category'],FILTER_SANITIZE_STRING);
     $query = "SELECT id,name,slug FROM Categories WHERE slug=:slug";
@@ -47,14 +51,15 @@ if(isset($_GET['t']) && !empty($_GET['t'])){
 }
 
 
-//? default query
+
 if(isset($category_id) && !empty($category_id) && (!isset($type_name) || empty($type_name))){
     $query = "SELECT COUNT(*) 
     FROM Shows s
     JOIN ShowCategories sc ON sc.showId=s.id
     JOIN Categories c ON sc.categoryId=c.id
     WHERE c.id=:cid
-    ";
+    ".((isset($sanitized_query) && !empty($sanitized_query)) ? 'AND s.name LIKE \'%'.$sanitized_query.'%\'' : '')
+    ;
     $stmt = $db->prepare($query);
     $stmt->bindParam(':cid', $category_id,PDO::PARAM_STR);
     $stmt->execute();
@@ -64,7 +69,7 @@ else if ((!isset($category_id) || empty($category_id)) && isset($type_name) && !
     $query = "SELECT COUNT(*) 
     FROM Shows s
     WHERE s.typeId=:tid
-    ";
+    ".((isset($sanitized_query) && !empty($sanitized_query)) ? 'AND s.name LIKE \'%'.$sanitized_query.'%\'' : '');
     $stmt = $db->prepare($query);
     $stmt->bindParam(':tid', $_GET['t'],PDO::PARAM_INT);
     $stmt->execute();
@@ -78,7 +83,7 @@ else if (isset($category_id) && !empty($category_id) && isset($type_name) && !em
     JOIN Categories c ON sc.categoryId=c.id
     WHERE c.id=:cid
     AND s.typeId=:tid
-    ";
+    ".((isset($sanitized_query) && !empty($sanitized_query)) ? 'AND s.name LIKE \'%'.$sanitized_query.'%\'' : '');
     $stmt = $db->prepare($query);
     $stmt->bindParam(':tid', $_GET['t'],PDO::PARAM_INT);
     $stmt->bindParam(':cid', $category_id,PDO::PARAM_STR);
@@ -86,7 +91,7 @@ else if (isset($category_id) && !empty($category_id) && isset($type_name) && !em
     $showCount = $stmt->fetchColumn();
 }
 else {
-    $query = "SELECT COUNT(*) FROM Shows";
+    $query = "SELECT COUNT(*) FROM Shows s".((isset($sanitized_query) && !empty($sanitized_query)) ? ' WHERE s.name LIKE \'%'.$sanitized_query.'%\'' : '');
     $stmt = $db->prepare($query);
     $stmt->execute();
     $showCount = $stmt->fetchColumn();
@@ -126,6 +131,7 @@ if(isset($category_id) && !empty($category_id) && (!isset($type_name) || empty($
     JOIN ShowCategories sc ON sc.showId = s.id
     JOIN Categories c ON c.id = sc.categoryId
     WHERE c.id=:cid
+    ".((isset($sanitized_query) && !empty($sanitized_query)) ? 'AND s.name LIKE \'%'.$sanitized_query.'%\' ' : '')."
     ORDER BY " . (isset($sortt) ? "s.name ASC, s.created_at DESC" : "s.created_at DESC") . "
     LIMIT :take OFFSET :skip
     ";
@@ -136,6 +142,7 @@ else if((!isset($category_id) || empty($category_id)) && isset($type_name) && !e
     FROM SHOWS s
     JOIN Types t ON t.id = s.typeId
     WHERE s.typeId=:tid
+    ".((isset($sanitized_query) && !empty($sanitized_query)) ? 'AND s.name LIKE \'%'.$sanitized_query.'%\' ' : '')."
     ORDER BY " . (isset($sortt) ? "s.name ASC, s.created_at DESC" : "s.created_at DESC") . "
     LIMIT :take OFFSET :skip
     ";
@@ -149,6 +156,7 @@ else if(isset($category_id) && !empty($category_id) && isset($type_name) && !emp
     JOIN Categories c ON c.id = sc.categoryId
     WHERE s.typeId=:tid
     AND c.id=:cid
+    ".((isset($sanitized_query) && !empty($sanitized_query)) ? 'AND s.name LIKE \'%'.$sanitized_query.'%\' ' : '')."
     ORDER BY " . (isset($sortt) ? "s.name ASC, s.created_at DESC" : "s.created_at DESC") . "
     LIMIT :take OFFSET :skip
     ";
@@ -158,6 +166,7 @@ else{
     SELECT s.id AS id, s.name AS name, s.image AS image, s.slug AS slug, s.imdb AS imdb, t.name AS type
     FROM SHOWS s
     JOIN Types t ON t.id = s.typeId
+    ".((isset($sanitized_query) && !empty($sanitized_query)) ? 'AND s.name LIKE \'%'.$sanitized_query.'%\' ' : '')."
     ORDER BY " . (isset($sortt) ? "s.name ASC, s.created_at DESC" : "s.created_at DESC") . "
     LIMIT :take OFFSET :skip
     ";
@@ -235,7 +244,7 @@ foreach ($allShhows as &$rrs2) {
                                             <button class="dropdown-button"><?php echo (isset($type_name) && !empty($type_name)) ? $type_name : 'Select Type' ?></button>
                                             <div class="dropdown-content">
                                                 <?php foreach($types as $type) : ?>
-                                                    <a href="<?php echo $all_shows_path . "/all-shows.php?t=".$type['id'].(isset($_GET['c']) ? '&c='.$_GET['c'] : '').(isset($category_name) && !empty($category_name) ? '&category='.$category_name : '').(isset($_GET['page']) && !empty($_GET['page']) ? '&page='.$_GET['page'] : '') ?>"><?php echo $type['name'] ?></a>
+                                                    <a href="<?php echo $all_shows_path . "/all-shows.php?t=".$type['id'].(isset($_GET['c']) ? '&c='.$_GET['c'] : '').(isset($category_name) && !empty($category_name) ? '&category='.$category_name : '').(isset($_GET['page']) && !empty($_GET['page']) ? '&page='.$_GET['page'] : '').(isset($_GET['query']) && !empty($_GET['query']) ? '&query='.$_GET['query'] : '') ?>"><?php echo $type['name'] ?></a>
                                                 <?php endforeach ; ?>
                                             </div>
                                         </div>
@@ -258,9 +267,9 @@ foreach ($allShhows as &$rrs2) {
                                             echo !$flagg ? 'Select Option' : $strrr ;
                                             ?></button>
                                             <div class="dropdown-content">
-                                                <a href="<?php echo $all_shows_path . "/all-shows.php?sort=a-z".(isset($_GET['c']) ? '&c='.$_GET['c'] : '').(isset($category_name) && !empty($category_name) ? '&category='.$category_name : '').(isset($_GET['page']) && !empty($_GET['page']) ? '&page='.$_GET['page'] : '').(isset($_GET['t']) && !empty($_GET['t']) ? '&t='.$_GET['t'] : '') ?>">A-Z</a>
-                                                <a href="<?php echo $all_shows_path . "/all-shows.php?c=10".(isset($_GET['sort']) ? '&sort='.$_GET['sort'] : '').(isset($category_name) && !empty($category_name) ? '&category='.$category_name : '').(isset($_GET['page']) && !empty($_GET['page']) ? '&page='.$_GET['page'] : '').(isset($_GET['t']) && !empty($_GET['t']) ? '&t='.$_GET['t'] : '') ?>">1-10</a>
-                                                <a href="<?php echo $all_shows_path . "/all-shows.php?c=20".(isset($_GET['sort']) ? '&sort='.$_GET['sort'] : '').(isset($category_name) && !empty($category_name) ? '&category='.$category_name : '').(isset($_GET['page']) && !empty($_GET['page']) ? '&page='.$_GET['page'] : '').(isset($_GET['t']) && !empty($_GET['t']) ? '&t='.$_GET['t'] : '') ?>">1-20</a>
+                                                <a href="<?php echo $all_shows_path . "/all-shows.php?sort=a-z".(isset($_GET['c']) ? '&c='.$_GET['c'] : '').(isset($category_name) && !empty($category_name) ? '&category='.$category_name : '').(isset($_GET['page']) && !empty($_GET['page']) ? '&page='.$_GET['page'] : '').(isset($_GET['t']) && !empty($_GET['t']) ? '&t='.$_GET['t'] : '').(isset($_GET['query']) && !empty($_GET['query']) ? '&query='.$_GET['query'] : '') ?>">A-Z</a>
+                                                <a href="<?php echo $all_shows_path . "/all-shows.php?c=10".(isset($_GET['sort']) ? '&sort='.$_GET['sort'] : '').(isset($category_name) && !empty($category_name) ? '&category='.$category_name : '').(isset($_GET['page']) && !empty($_GET['page']) ? '&page='.$_GET['page'] : '').(isset($_GET['t']) && !empty($_GET['t']) ? '&t='.$_GET['t'] : '').(isset($_GET['query']) && !empty($_GET['query']) ? '&query='.$_GET['query'] : '') ?>">1-10</a>
+                                                <a href="<?php echo $all_shows_path . "/all-shows.php?c=20".(isset($_GET['sort']) ? '&sort='.$_GET['sort'] : '').(isset($category_name) && !empty($category_name) ? '&category='.$category_name : '').(isset($_GET['page']) && !empty($_GET['page']) ? '&page='.$_GET['page'] : '').(isset($_GET['t']) && !empty($_GET['t']) ? '&t='.$_GET['t'] : '').(isset($_GET['query']) && !empty($_GET['query']) ? '&query='.$_GET['query'] : '') ?>">1-20</a>
                                             </div>
                                         </div>
                                     </div>
@@ -323,14 +332,14 @@ foreach ($allShhows as &$rrs2) {
                         <?php if ($total_shows != 0 && floor($total_shows / $divide) != 0 && !(floor($total_shows / $divide) == 1 && $total_shows % $divide == 0)) : ?>
                             <div class="product__pagination">
                                 <?php if ($start > 1) : ?>
-                                    <a href="<?php echo $dynamicUrl . "/all-shows.php" . "?page=1".(isset($category_slug) && !empty($category_slug) ? '&category='.$category_slug : '').(isset($_GET['c']) ? '&c='.$_GET['c'] : '' ).(isset($_GET['sort']) ? '&sort='.$_GET['sort'] : '').(isset($_GET['t']) && !empty($_GET['t']) ? '&t='.$_GET['t'] : '') ?>">1</a>
+                                    <a href="<?php echo $dynamicUrl . "/all-shows.php" . "?page=1".(isset($category_slug) && !empty($category_slug) ? '&category='.$category_slug : '').(isset($_GET['c']) ? '&c='.$_GET['c'] : '' ).(isset($_GET['sort']) ? '&sort='.$_GET['sort'] : '').(isset($_GET['t']) && !empty($_GET['t']) ? '&t='.$_GET['t'] : '').(isset($_GET['query']) && !empty($_GET['query']) ? '&query='.$_GET['query'] : '') ?>">1</a>
                                     <?php if ($start > 2) : ?>
                                         <a href="#"><span>...</span></a>
                                     <?php endif; ?>
                                 <?php endif; ?>
                                 <!-- Middle pages -->
                                 <?php for ($i = $start; $i <= $end; $i++) : ?>
-                                    <a class="<?php echo ($i == $current_page) ? 'current-page' : '' ?>" href="<?php echo $dynamicUrl . "/all-shows.php"  . "?page=" . $i.(isset($category_slug) && !empty($category_slug) ? '&category='.$category_slug : '').(isset($_GET['c']) ? '&c='.$_GET['c'] : '' ).(isset($_GET['sort']) ? '&sort='.$_GET['sort'] : '').(isset($_GET['t']) && !empty($_GET['t']) ? '&t='.$_GET['t'] : '') ?>">
+                                    <a class="<?php echo ($i == $current_page) ? 'current-page' : '' ?>" href="<?php echo $dynamicUrl . "/all-shows.php"  . "?page=" . $i.(isset($category_slug) && !empty($category_slug) ? '&category='.$category_slug : '').(isset($_GET['c']) ? '&c='.$_GET['c'] : '' ).(isset($_GET['sort']) ? '&sort='.$_GET['sort'] : '').(isset($_GET['t']) && !empty($_GET['t']) ? '&t='.$_GET['t'] : '').(isset($_GET['query']) && !empty($_GET['query']) ? '&query='.$_GET['query'] : '') ?>">
                                     <?php echo $i ?>
                                 </a>
                                 <?php endfor; ?>
@@ -339,12 +348,12 @@ foreach ($allShhows as &$rrs2) {
                                     <?php if ($end < $total_pages - 1) : ?>
                                         <a href="#"><span>...</span></a>
                                     <?php endif; ?>
-                                    <a href="<?php echo $dynamicUrl . "/all-shows.php" . "?page=" . $total_pages.(isset($category_slug) && !empty($category_slug) ? '&category='.$category_slug : '').(isset($_GET['c']) ? '&c='.$_GET['c'] : '' ).(isset($_GET['sort']) ? '&sort='.$_GET['sort'] : '').(isset($_GET['t']) && !empty($_GET['t']) ? '&t='.$_GET['t'] : '')  ?>">
+                                    <a href="<?php echo $dynamicUrl . "/all-shows.php" . "?page=" . $total_pages.(isset($category_slug) && !empty($category_slug) ? '&category='.$category_slug : '').(isset($_GET['c']) ? '&c='.$_GET['c'] : '' ).(isset($_GET['sort']) ? '&sort='.$_GET['sort'] : '').(isset($_GET['t']) && !empty($_GET['t']) ? '&t='.$_GET['t'] : '').(isset($_GET['query']) && !empty($_GET['query']) ? '&query='.$_GET['query'] : '')  ?>">
                                     <?php echo $total_pages ?>
                                 </a>
                                 <?php endif; ?>
                                 <?php if ($current_page != $total_pages) : ?>
-                                    <a href="<?php echo $dynamicUrl . "/all-shows.php" . "?page=" . ($current_page + 1).(isset($category_slug) && !empty($category_slug) ? '&category='.$category_slug : '').(isset($_GET['c']) ? '&c='.$_GET['c'] : '' ).(isset($_GET['sort'] )? '&sort='.$_GET['sort'] : '').(isset($_GET['t']) && !empty($_GET['t']) ? '&t='.$_GET['t'] : '') ?>"><i class="fa fa-angle-double-right"></i></a>
+                                    <a href="<?php echo $dynamicUrl . "/all-shows.php" . "?page=" . ($current_page + 1).(isset($category_slug) && !empty($category_slug) ? '&category='.$category_slug : '').(isset($_GET['c']) ? '&c='.$_GET['c'] : '' ).(isset($_GET['sort'] )? '&sort='.$_GET['sort'] : '').(isset($_GET['t']) && !empty($_GET['t']) ? '&t='.$_GET['t'] : '').(isset($_GET['query']) && !empty($_GET['query']) ? '&query='.$_GET['query'] : '') ?>"><i class="fa fa-angle-double-right"></i></a>
                                 <?php endif; ?>
                             </div>
                         <?php endif; ?>
