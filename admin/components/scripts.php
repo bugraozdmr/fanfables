@@ -1,5 +1,5 @@
 <?php
-$base_url = '/e-trade/admin/assets/js/';
+$base_url = '/anime/admin/assets/js/';
 ?>
 
 <!-- Core JS Files -->

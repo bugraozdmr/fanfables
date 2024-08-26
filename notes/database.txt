@@ -115,3 +115,24 @@ CREATE TABLE UserBans (
     until TIMESTAMP NOT NULL,
     FOREIGN KEY (userId) REFERENCES users(id)
 );
+
+CREATE TABLE Blog (
+    id CHAR(36) NOT NULL DEFAULT (UUID()) PRIMARY KEY,
+    userId CHAR(36) NOT NULL,
+    slug VARCHAR(300) NOT NULL UNIQUE,
+    title VARCHAR(300) NOT NULL,
+    card_desc VARCHAR(500) NOT NULL,
+    content VARCHAR(300) NOT NULL,
+    alt VARCHAR(350) NOT NULL,
+    image VARCHAR(250),
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (userId) REFERENCES users(id)
+);
+
+CREATE TABLE BlogCategories (
+    id CHAR(36) NOT NULL DEFAULT (UUID()) PRIMARY KEY,
+    blogId CHAR(36) NOT NULL,
+    categoryId CHAR(36) NOT NULL,
+    FOREIGN KEY (blogId) REFERENCES Blog(id),
+    FOREIGN KEY (categoryId) REFERENCES Categories(id)
+);

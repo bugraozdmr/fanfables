@@ -103,6 +103,22 @@
             </ul>
           </div>
         </li>
+        <li class="nav-item">
+          <a data-bs-toggle="collapse" href="#forms">
+            <i class="fas fa-pen-square"></i>
+            <p>Blog Area</p>
+            <span class="caret"></span>
+          </a>
+          <div class="collapse" id="forms">
+            <ul class="nav nav-collapse">
+              <li>
+                <a href="/anime/admin/blogs.php">
+                  <span class="sub-item">Add Blog</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </li>
       </ul>
     </div>
   </div>
