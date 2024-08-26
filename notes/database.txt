@@ -108,3 +108,10 @@ CREATE TABLE Characters (
     image VARCHAR(250),
     FOREIGN KEY (showId) REFERENCES Shows(id)
 );
+
+CREATE TABLE UserBans (
+    id CHAR(36) NOT NULL DEFAULT (UUID()) PRIMARY KEY,
+    userId CHAR(36) NOT NULL,
+    until TIMESTAMP NOT NULL,
+    FOREIGN KEY (userId) REFERENCES users(id)
+);
