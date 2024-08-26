@@ -95,6 +95,11 @@
                   <span class="sub-item">Edit Users</span>
                 </a>
               </li>
+              <li>
+                <a href="/anime/admin/comments.php">
+                  <span class="sub-item">Edit Comments</span>
+                </a>
+              </li>
             </ul>
           </div>
         </li>

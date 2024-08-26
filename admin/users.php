@@ -65,7 +65,7 @@ if (!empty($whereClauses)) {
 }
 
 if(isset($userCount)){
-    $divide = 1;
+    $divide = 10;
     $upage_count = (int)ceil($userCount / $divide);
     $userPage = 1;
     if (isset($_GET['upage']) && $_GET['upage'] > 0 && $upage_count >= $_GET['upage']) {

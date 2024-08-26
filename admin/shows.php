@@ -9,8 +9,26 @@ try {
     $data = json_decode($jsonData, true);
     $dynamicUrl = isset($data['dynamic_url']) ? $data['dynamic_url'] : '';
 
-    $query = "SELECT * FROM Shows";
+    //* COUNT
+    $query = "SELECT COUNT(*) FROM Shows";
     $stmt = $db->prepare($query);
+    $stmt->execute();
+    $showCount = $stmt->fetchColumn();
+
+    //* QUERY
+    $divide = 10;
+    $spage_count = (int)ceil($showCount / $divide);
+    $showPage = 1;
+    if (isset($_GET['spage']) && $_GET['spage'] > 0 && $spage_count >= $_GET['spage']) {
+        $showPage = (int)$_GET['spage'];
+    }
+    $take = $divide;
+    $skipShows = (int)(($showPage - 1) * $take);
+
+    $query = "SELECT * FROM Shows LIMIT :take OFFSET :skip";
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(":take",$take,PDO::PARAM_INT);
+    $stmt->bindParam(":skip",$skipShows,PDO::PARAM_INT);
     $stmt->execute();
 
     // Fetch all records
@@ -82,6 +100,57 @@ try {
                         </table>
                     </div>
                 </div>
+                <?php
+                if ($showCount != 0) {
+                    $max_pages_to_show = 5;
+                    $total_pages = $spage_count;
+                    $current_page = $showPage;
+
+                    $start = max(1, $current_page - floor($max_pages_to_show / 2));
+                    $end = min($total_pages, $current_page + floor($max_pages_to_show / 2));
+
+                    if ($end - $start + 1 < $max_pages_to_show) {
+                        if ($start == 1) {
+                            $end = min($total_pages, $end + ($max_pages_to_show - ($end - $start + 1)));
+                        } else {
+                            $start = max(1, $start - ($max_pages_to_show - ($end - $start + 1)));
+                        }
+                    }
+                }
+                ?>
+                <?php if ($showCount != 0 && floor($showCount / $divide) != 0 && !(floor($showCount / $divide) == 1 && $showCount % $divide == 0)) : ?>
+                    <nav aria-label="Page navigation example" class="mx-2">
+                        <ul class="pagination justify-content-end">
+                            <?php if ($start > 1) : ?>
+                                <li class="page-item">
+                                    <a class="page-link" href="<?php echo $dynamicUrl . "/admin/shows.php?spage=1" ?>">1</a>
+                                </li>
+                                <?php if ($start > 2) : ?>
+                                    <li class="page-item">
+                                        <a class="page-link" href="#"><span>...</span></a>
+                                    </li>
+                                <?php endif; ?>
+                            <?php endif; ?>
+                            <!-- Middle pages -->
+                            <?php for ($i = $start; $i <= $end; $i++) : ?>
+                                <li class="page-item">
+                                    <a class="page-link <?php echo ($i == $current_page) ? 'active' : '' ?>" style="<?php echo ($i == $current_page) ? 'color:white;' : '' ?>" href="<?php echo $dynamicUrl . "/admin/shows.php?spage=" . $i ?>"><?php echo $i ?></a>
+                                </li>
+                            <?php endfor; ?>
+                            <!-- Last page -->
+                            <?php if ($end < $total_pages) : ?>
+                                <?php if ($end < $total_pages - 1) : ?>
+                                    <li class="page-item">
+                                        <a class="page-link" href="#"><span>...</span></a>
+                                    </li>
+                                <?php endif; ?>
+                                <li class="page-item">
+                                    <a class="page-link" href="<?php echo $dynamicUrl . "/admin/shows.php?spage=" . $total_pages ?>"><?php echo $total_pages ?></a>
+                                </li>
+                            <?php endif; ?>
+                        </ul>
+                    </nav>
+                <?php endif; ?>
             </div>
         </div>
     </div>
