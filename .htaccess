@@ -2,7 +2,7 @@ RewriteEngine On
 RewriteBase /anime/
 
 # Özel kullanıcı sayfası için yönlendirme (Öncelikli kural)
-RewriteRule ^users/([a-zA-Z0-9_-]+)$ /anime/user-page.php?username=$1 [L,QSA]
+RewriteRule ^user/([a-zA-Z0-9_-]+)$ /anime/user.php?username=$1 [L,QSA]
 
 # Ürün sayfası için genel yönlendirme kuralı
 RewriteRule ^s/([a-zA-Z0-9-]+)$ /anime/shows.php?slug=$1 [L,QSA]

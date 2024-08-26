@@ -31,7 +31,7 @@ if (isset($_COOKIE['auth_token'])) {
         $decoded = JWT::decode($token, new Key($key, 'HS256'));
         $TokenUsername = $decoded->sub;
 
-        $query = "SELECT id,username,name,email,image,bannerImage FROM users WHERE username=:username";
+        $query = "SELECT id,username,name,email,image,bannerImage,description FROM users WHERE username=:username";
         $stmt = $db->prepare($query);
         $stmt->bindParam(':username', $TokenUsername);
         $stmt->execute();
@@ -80,7 +80,7 @@ include __DIR__ . "/components/up-all.php"
         <div class="row">
             <div class="col-lg-8">
                 <div class="login__form">
-                    <h3>Profile</h3>
+                    <h3>Profile -- <a target="_blank" style="text-decoration:none;color:orange" href="<?php echo $profile_path."/user/".$usrRes['username'] ?>" >See your profile</a></h3>
                     <form id="profile-form">
                         <?php if (isset($usrRes['image']) && !empty($usrRes['image'])) : ?>
                             <div class="image-preview">
@@ -121,9 +121,7 @@ include __DIR__ . "/components/up-all.php"
                         </div>
                         <div class="col-lg-12">
                             <label for="description" style="color:white">About You</label>
-                            <textarea style="width: 100%" rows="6" type="text" id="description" placeholder="Description">
-                            <?php echo $usrRes['description'] ?? '' ?>
-                            </textarea>
+                            <textarea style="width: 100%" rows="6" id="description" placeholder="Description"><?php echo $usrRes['description'] ?? ''; ?></textarea>
                         </div>
                         <div class="col-lg-12">
                             <span id="error-message" class="text-danger d-none"></span>

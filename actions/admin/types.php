@@ -51,7 +51,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             } else {
                 $response = [
                     'status' => 'error',
-                    'message' => 'At least one field (name or hex) is required for update'
+                    'message' => 'All fields are required'
                 ];
             }
         } else {

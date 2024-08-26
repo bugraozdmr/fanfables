@@ -213,7 +213,7 @@ foreach ($allShhows as &$rrs2) {
             <div class="col-lg-12">
                 <div class="breadcrumb__links">
                     <a href="<?php echo $all_shows_path . "/index.php" ?>"><i class="fa fa-home"></i> Home</a>
-                    <a href="<?php echo $all_shows_path . "/shows" ?>">All Shows</a>
+                    <a href="<?php echo $all_shows_path . "/all-shows.php" ?>">All Shows</a>
                     <?php if(isset($category_name) && !empty($category_name)) : ?>
                         <span><?php echo $category_name ?></span>
                     <?php endif ; ?>

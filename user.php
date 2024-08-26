@@ -71,7 +71,7 @@ if (isset($_GET['username'])) {
 
         $qcount = $cc['count'];
     } else {
-        header('Location: /e-trade/404.php');
+        header('Location: /anime/404.php');
         exit();
     }
 
@@ -105,13 +105,13 @@ if (isset($_GET['username'])) {
                 $rolee[] = $row['role'];
             }
         } catch (\Exception $e) {
-            header('Location: /e-trade/404.php');
+            header('Location: /anime/404.php');
             exit();
         }
     }
 
 } else {
-    header('Location: /e-trade/404.php');
+    header('Location: /anime/404.php');
     exit();
 }
 include './components/up-all.php'
@@ -134,7 +134,16 @@ include './components/up-all.php'
         <div class="mt-5 text-center">
             <h4 class="mb-2"><?php echo $useer['username'] ?></h4>
             <h5>Joined <?php echo timeAgo($useer['createdAt']) ?></h5>
-            <h6><?php echo $useer['description'] ?? '' ?></h6>
+            <h6 class="mt-3" style="
+                padding: 10px;
+                border: 4px solid;
+                border-image: linear-gradient(45deg, #ff6b6b, #feca57, #48dbfb, #1dd1a1);
+                border-image-slice: 1;
+                border-radius: 8px;
+                display: inline-block;
+            ">
+                <?php echo (isset($useer['description']) && !empty($useer['description'])) ? $useer['description'] : 'No info given' ?>
+            </h6>
             <?php if(isset($result) && !empty($result) && in_array('ADMIN', $rolee)) : ?>
                 <span class="d-block" style="color:cadetblue">- User Contact Info -</span>
                 <?php if(isset($useer['name']) && !empty($useer['name'])) : ?>

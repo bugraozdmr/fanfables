@@ -134,9 +134,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                         // Move the file to the upload directory
                         if (move_uploaded_file($fileTmpName, $targetFilePath)) {
-                            //coded file name
-                            $codedFile = "/uploads/users/" . $uniqueFileName;
-                            $stmt->bindParam(':image', $codedFile);
+                            //coded file name -- alttada ayni isin olmasin diye 1 verildi sona
+                            $codedFile1 = "/uploads/users/" . $uniqueFileName;
+                            $stmt->bindParam(':image', $codedFile1);
 
                         } else {
                             throw new Exception('Failed to move uploaded file.');
@@ -196,7 +196,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         }
                     }
                     else{
-                        $stmt->bindParam(':image', $bimg);
+                        $stmt->bindParam(':bannerImg', $bimg);
                         $stmt->execute();
                     }
 
@@ -221,7 +221,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 
-// TODO HATA SIKILDIMAMK
 
 echo json_encode($response);
 exit();

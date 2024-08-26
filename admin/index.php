@@ -27,6 +27,23 @@ $stmt = $db->prepare($query);
 $stmt->execute();
 $mcShows = $stmt->fetchAll();
 
+//* GETTING COMMENTS COUNT
+$query = "SELECT COUNT(*) FROM Comments";
+$stmt = $db->prepare($query);
+$stmt->execute();
+$comCount = $stmt->fetchColumn();
+
+//* GETTING USERS COUNT
+$query = "SELECT COUNT(*) FROM users";
+$stmt = $db->prepare($query);
+$stmt->execute();
+$usCount = $stmt->fetchColumn();
+
+//* GETTING SHOWS COUNT
+$query = "SELECT COUNT(*) FROM Shows";
+$stmt = $db->prepare($query);
+$stmt->execute();
+$ssCount = $stmt->fetchColumn();
 
 
 include './components/up-all.php' ?>
@@ -56,7 +73,7 @@ include './components/up-all.php' ?>
               <div class="col col-stats ms-3 ms-sm-0">
                 <div class="numbers">
                   <p class="card-category">Users</p>
-                  <h4 class="card-title">1,294</h4>
+                  <h4 class="card-title"><?php echo $usCount ?></h4>
                 </div>
               </div>
             </div>
@@ -75,7 +92,7 @@ include './components/up-all.php' ?>
               <div class="col col-stats ms-3 ms-sm-0">
                 <div class="numbers">
                   <p class="card-category">Shows</p>
-                  <h4 class="card-title">1303</h4>
+                  <h4 class="card-title"><?php echo $ssCount ?></h4>
                 </div>
               </div>
             </div>
@@ -113,7 +130,7 @@ include './components/up-all.php' ?>
               <div class="col col-stats ms-3 ms-sm-0">
                 <div class="numbers">
                   <p class="card-category">Comments</p>
-                  <h4 class="card-title">576</h4>
+                  <h4 class="card-title"><?php echo $comCount ?></h4>
                 </div>
               </div>
             </div>
@@ -136,14 +153,11 @@ include './components/up-all.php' ?>
                     <img src="<?php echo $admin_path.($user['image'] ?? "/img/defuser.png") ?>" alt="user image" class="avatar-img rounded-circle" />
                   </div>
                   <div class="info-user ms-3">
-                    <div class="username"><?php echo $user['username'] ?></div>
+                    <div class="username"><a target="_blank" href="<?php echo $admin_path."/user/".$user['username'] ?>" style="text-decoration: none;color:gray;"><?php echo $user['username'] ?></a></div>
                     <div class="status"><?php echo $user['name'] ?? "no name given" ?></div>
                   </div>
                   <button class="btn btn-icon btn-link op-8 me-1">
-                    <i class="far fa-envelope"></i>
-                  </button>
-                  <button class="btn btn-icon btn-link btn-danger op-8">
-                    <i class="fas fa-ban"></i>
+                    <i class="fa fa-search"></i>
                   </button>
                 </div>
               <?php endforeach ; ?>

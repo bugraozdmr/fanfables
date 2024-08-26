@@ -313,10 +313,10 @@ include "./components/up-all.php";
                     <?php foreach ($comments as $comment) : ?>
                         <div class="anime__review__item">
                             <div class="anime__review__item__pic">
-                                <img src="<?php echo $show_path . $comment['userimage'] ?>" alt="user image">
+                                <img src="<?php echo (isset($comment['userimage']) && !empty($comment['userimage'])) ? $show_path . $comment['userimage']  : $show_path."/img/defuser.png"  ?>" alt="user image">
                             </div>
                             <div class="anime__review__item__text">
-                                <h6><?php echo $comment['username'] ?> - <span><?php echo timeAgo($comment['createdAt']) ?></span></h6>
+                                <h6><a href="<?php echo $show_path."/user/".$comment['username'] ?>" style="text-decoration: none;color:white;"><?php echo $comment['username'] ?></a> - <span><?php echo timeAgo($comment['createdAt']) ?></span></h6>
                                 <p><?php echo $comment['comment'] ?></p>
                             </div>
                             <div class="col-lg-12">

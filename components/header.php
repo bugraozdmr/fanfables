@@ -83,7 +83,7 @@ if (isset($_COOKIE['auth_token'])) {
                     <a href="#" class="search-switch"><span class="icon_search"></span></a>
                     <?php if (isset($token) && !empty($token)): ?>
                         <a class="dropdown1" href="#" onclick="return false;">
-                            <img class="avatar custom-avatar" src="<?php echo $header_path.$img ?? $header_path . '/img/defuser.png' ?>" onclick="toggleDropdown()" />
+                            <img class="avatar custom-avatar" src="<?php echo (isset($img) && !empty($img)) ? $header_path.$img : $header_path . '/img/defuser.png' ?>" onclick="toggleDropdown()" />
                             <div id="dropdownMenu" class="dropdown1-menu">
                                 <a href="<?php echo $header_path ?>/profile.php">Profile</a>
                                 <a href="<?php echo $header_path ?>/logout.php">Logout</a>
