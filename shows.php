@@ -308,7 +308,7 @@ include "./components/up-all.php";
                 </div>
                 <div class="anime__details__review">
                     <div class="section-title">
-                        <h5><?php echo count($comments) != 0 ? "Reviews" : 'There is no review yet' ?></h5>
+                        <h5><?php echo count($comments) != 0 ? "Reviews "."(".$total_comments.")" : 'There is no review yet' ?></h5>
                     </div>
                     <?php foreach ($comments as $comment) : ?>
                         <div class="anime__review__item">

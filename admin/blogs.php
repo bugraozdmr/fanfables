@@ -6,7 +6,7 @@ include './components/up-all.php' ?>
 include '../actions/connect.php';
 
 try {
-    $query = "SELECT * FROM Blogs";
+    $query = "SELECT title,slug,alt,id FROM Blog";
     $stmt = $db->prepare($query);
     $stmt->execute();
 
@@ -43,7 +43,8 @@ try {
                             <thead>
                                 <tr>
                                     <th scope="col">#</th>
-                                    <th scope="col">Blog Name</th>
+                                    <th scope="col">Blog Title</th>
+                                    <th scope="col">Blog Alt</th>
                                     <th scope="col">Actions</th>
                                 </tr>
                             </thead>
@@ -60,7 +61,12 @@ try {
 
                                         <tr>
                                             <td><?php echo $index + 1; ?></td>
-                                            <td><?php echo htmlspecialchars($blog['name']); ?></td>
+                                            <td>
+                                                <a href="<?php echo $dynamicUrl."/b/".$blog['slug'] ?>" style="color:gray;text-decoration:none;" target="_blank">
+                                                    <?php echo $blog['title'] ?>
+                                                </a>
+                                            </td>
+                                            <td><?php echo $blog['alt'] ?></td>
                                             <td>
                                                 <div class="icon-container">
                                                     <a href="./manage/Blogs.php?id=<?php echo htmlspecialchars($blog['id']); ?>"><i class="fas fa-edit icon-edit" title="Edit"></i></a>

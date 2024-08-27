@@ -1485,13 +1485,28 @@ ol {
 	margin-bottom: 40px;
 }
 
+.blog__details__text h1,
+.blog__details__text h2,
+.blog__details__text h3,
+.blog__details__text h4 {
+	color: #ffffff;
+	font-weight: 700;
+	margin-bottom: 35px;
+}
+
+.blog__details__text img {
+	min-width: 100%;
+	margin-bottom: 26px;
+}
+
+
 .blog__details__text p {
 	color: #ffffff;
 	font-size: 17px;
 	line-height: 30px;
 }
 
-.blog__details__item__text {
+/*.blog__details__item__text {
 	margin-bottom: 42px;
 }
 
@@ -1511,7 +1526,7 @@ ol {
 	font-size: 17px;
 	line-height: 30px;
 	margin-bottom: 0;
-}
+}*/
 
 .blog__details__tags {
 	margin-bottom: 60px;

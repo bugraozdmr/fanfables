@@ -12,7 +12,7 @@ if (isset($_GET['id'])) {
     $id = $_GET['id'];
 
     try {
-        $query = "SELECT * FROM Blogs WHERE id=:id";
+        $query = "SELECT * FROM Blog WHERE id=:id";
         $stmt = $db->prepare($query);
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);
         $stmt->execute();
@@ -20,23 +20,39 @@ if (isset($_GET['id'])) {
         // Fetch the record
         $blog = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        //* GETTING CATEGORIES
-        $query = "SELECT * FROM Categories";
-        $stmt = $db->prepare($query);
-        $stmt->execute();
-        $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        echo var_dump($categories)."hererere";
-
         $blogFound = 1;
 
         if (!$blog) {
             $blogFound = 2;
         }
+        else{
+            //* blog CATEGORIES
+            $query = "SELECT * FROM BlogCategories WHERE blogId=:id";
+            $stmt = $db->prepare($query);
+            $stmt->bindParam(':id', $blog['id'], PDO::PARAM_STR);
+            $stmt->execute();
+
+            $catsFrom = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $catIds = array_column($catsFrom, 'categoryId');
+
+
+            //! NAMES ARE IMPORTANT --- BETTER COMMENTS
+
+            $jsonFile = __DIR__ . '/../../settings.json';
+            $jsonData = file_get_contents($jsonFile);
+            $data = json_decode($jsonData, true);
+            $dynamicUrl = isset($data['dynamic_url']) ? $data['dynamic_url'] : '';
+        }
     } catch (PDOException $e) {
         echo "Error: " . $e->getMessage();
     }
 }
+
+//* GETTING CATEGORIES
+$query = "SELECT * FROM Categories";
+$stmt = $db->prepare($query);
+$stmt->execute();
+$categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 
@@ -62,27 +78,41 @@ if (isset($_GET['id'])) {
             </div>
             <div class="form-group">
                 <label for="content">Content</label>
-                <textarea type="text" id="content" name="content" placeholder="Enter content"></textarea>
+                <textarea type="text" id="content" name="content" placeholder="Enter content">
+                    <?php echo htmlspecialchars($blogFound != 0 && $blogFound == 1 && isset($blog) ? $blog['content'] : ''); ?>
+                </textarea>
             </div>
             <div class="form-group">
                 <label for="alt">Alt (deadpool,wolwerine,marvel)</label>
                 <input type="text" id="alt" name="alt" placeholder="Enter blog alt categories" value="<?php echo htmlspecialchars($blogFound != 0 && $blogFound == 1 && isset($blog) ? $blog['alt'] : ''); ?>" required>
             </div>
             <div class="form-group">
-                <label for="categoryImage">Upload Image</label>
-                <input type="file" id="categoryImage" name="categoryImage" accept="image/*">
+                <label for="image">Upload Image</label>
+                <input type="file" id="image" name="image" accept="image/*">
                 <small class="form-text text-muted">Select 1 image (JPG, PNG, JPEG, WEBP, etc.)</small>
             </div>
+            <?php if ($blogFound == 1 && !empty($blog['image'])) : ?>
+                <div class="form-group">
+                    <label for="images">Uploaded Image</label>
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <div class="image-container">
+                                <img src="<?php echo $dynamicUrl.htmlspecialchars($blog['image']); ?>" alt="Blog Image" class="img-fluid">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <?php endif; ?>
             <?php if (!empty($categories)) : ?>
                 <?php foreach ($categories as $category) : ?>
                     <div class="form-check d-flex align-items-center">
-                        <div class="col-md-1">
+                        <div class="col-lg-1 col-md-1 col-sm-1">
                             <?php
                             $isChecked = (isset($catIds) && is_array($catIds) && in_array($category['id'], $catIds)) ? 'checked' : '';
                             ?>
                             <input class="form-check-input" type="checkbox" id="<?php echo $category['name'] ?>" name="cates[]" value="<?php echo $category['id'] ?>" <?php echo $isChecked ?>>
                         </div>
-                        <div class="col-md-5 col-sm-5 mt-3 mx-3">
+                        <div class="col-md-5 col-sm-5 col-lg-5 mt-3 mx-3">
                             <label class="form-check-label" for="<?php echo $category['name'] ?>"><?php echo $category['name'] ?></label>
                         </div>
                     </div>
@@ -126,26 +156,24 @@ if (isset($_GET['id'])) {
 
         var categories = Array.from(document.querySelectorAll('input[name="cates[]"]:checked')).map(checkbox => checkbox.value);
 
-        var imageInput = document.getElementById('showImage');
+        var imageInput = document.getElementById('image');
 
         var content = CKEDITOR.instances.content.getData();
 
-        var data = {
-            id: id,
-            alt : alt,
-            id:id,
-            card_desc:card_desc,
-            content:content
-        };
+        var formData = new FormData();
+        formData.append('title', title);
+        formData.append('card_desc', card_desc);
+        formData.append('alt', alt);
+        formData.append('id', id);
+        formData.append('content', content);
 
-        console.log(data);
+        formData.append('categories', categories);
+        formData.append('image', imageInput.files[0]);
 
-        fetch('../../actions/admin/Blogs.php', {
+        //TODO BURDA KALDIM SADECE ENDPOINTI YAZ ADAM AKILLI SONRA PAGINATION SONRA BANLI KULLANICILAR SAYFALAMA
+        fetch('../../actions/admin/blogs.php', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
+                body: formData
             })
             .then(response => response.json())
             .then(data => {

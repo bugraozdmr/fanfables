@@ -7,6 +7,9 @@ RewriteRule ^user/([a-zA-Z0-9_-]+)$ /anime/user.php?username=$1 [L,QSA]
 # Ürün sayfası için genel yönlendirme kuralı
 RewriteRule ^s/([a-zA-Z0-9-]+)$ /anime/shows.php?slug=$1 [L,QSA]
 
+# BLOG sayfası için genel yönlendirme kuralı
+RewriteRule ^b/([a-zA-Z0-9-]+)$ /anime/blog.php?slug=$1 [L,QSA]
+
 # Kategori sayfası için genel yönlendirme kuralı
 RewriteRule ^c/([a-zA-Z0-9-]+)$ /anime/all-shows.php?category=$1 [L,QSA]
 
