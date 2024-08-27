@@ -1,5 +1,6 @@
 <?php
 $title = "Forgot Password";
+$url_to = "http://localhost/anime/forgot-password.php";
 $login_path = "/anime/";
 
 if (isset($_COOKIE['auth_token'])) {

@@ -97,6 +97,8 @@ if (isset($_GET['slug'])) {
             //*set title
             $title = $show['name'];
             $pageDescription = $show['card_desc'];
+            $url_to = "http://localhost/anime/s/".$show['slug'];
+            $image_to = "http://localhost/anime".$show['image'];
 
             //? SHOW CATEGORIES
             $query = "SELECT c.name as name 
@@ -211,7 +213,7 @@ include "./components/up-all.php";
             <div class="col-lg-12">
                 <div class="breadcrumb__links">
                     <a href="<?php echo $show_path . "/index.php" ?>"><i class="fa fa-home"></i> Home</a>
-                    <a href="<?php echo $show_path . "/shows" ?>">Shows</a>
+                    <a href="<?php echo $show_path . "/all-shows.php" ?>">Shows</a>
                     <span><?php echo $show['name'] ?></span>
                 </div>
             </div>

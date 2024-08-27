@@ -2,6 +2,7 @@
 $title = "Watch Later";
 $pageDescription = "Later watch list you can come and check whenever you want ...And share it with your friends !";
 $watch_later_path = "/anime/";
+$url_to = "http://localhost/anime/watch-later.php";
 
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;

@@ -1,6 +1,7 @@
 <?php
 $title = "Login";
 $login_path = "/anime/";
+$url_to = "http://localhost/anime/login.php";
 
 if (isset($_COOKIE['auth_token'])) {
     $token = $_COOKIE['auth_token'];

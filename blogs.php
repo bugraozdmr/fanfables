@@ -2,6 +2,7 @@
 $title = "Blogs";
 $pageDescription = "If you want to learn about the latest news about the shows and what to do, you are in a good place!";
 $blog_path = "/anime";
+$url_to = "http://localhost/anime/blogs.php";
 
 include __DIR__ . '/actions/connect.php';
 

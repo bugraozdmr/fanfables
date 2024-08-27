@@ -35,10 +35,10 @@ foreach($randomShows as &$rrs){
     $stmt = $db->prepare($query);
     $stmt->bindParam(':showId', $rrs1['id']);
     $stmt->execute();
-    $ccountt = $stmt->fetchColumn();
+    $ccounttt = $stmt->fetchColumn();
 
     $rrs['commentCount'] = $ccount;
-    $rrs['characterCount'] = $ccountt;
+    $rrs['characterCount'] = $ccounttt;
 }
 
 
@@ -62,10 +62,10 @@ foreach($recentShows as &$rrs1){
     $stmt = $db->prepare($query);
     $stmt->bindParam(':showId', $rrs1['id']);
     $stmt->execute();
-    $ccountt = $stmt->fetchColumn();
+    $counttt = $stmt->fetchColumn();
 
     $rrs1['commentCount'] = $ccount;
-    $rrs1['characterCount'] = $ccountt;
+    $rrs1['characterCount'] = $counttt;
 }
 
 //* MOST IMDB
@@ -88,10 +88,10 @@ foreach($mostRated as &$rrs2){
     $stmt = $db->prepare($query);
     $stmt->bindParam(':showId', $rrs1['id']);
     $stmt->execute();
-    $ccountt = $stmt->fetchColumn();
+    $counttt = $stmt->fetchColumn();
 
     $rrs2['commentCount'] = $ccount;
-    $rrs2['characterCount'] = $ccountt;
+    $rrs2['characterCount'] = $counttt;
 }
 
 //* MOST ADDED TO WATH LATER

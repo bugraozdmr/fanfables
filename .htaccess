@@ -13,6 +13,11 @@ RewriteRule ^b/([a-zA-Z0-9-]+)$ /anime/blog.php?slug=$1 [L,QSA]
 # Kategori sayfası için genel yönlendirme kuralı
 RewriteRule ^c/([a-zA-Z0-9-]+)$ /anime/all-shows.php?category=$1 [L,QSA]
 
+# components ve admin/components dizinlerine erişimi engelle
+RewriteRule ^components/ /anime/404.php [L]
+RewriteRule ^admin/components/ /anime/404.php [L]
+RewriteRule ^notes/ /anime/404.php [L]
+
 # .php uzantısı olmadan dosya erişimi (Yalnızca mevcut dosyalar için geçerli)
 RewriteCond %{REQUEST_FILENAME}\.php -f
 RewriteRule ^([^.]+)$ $1.php [NC,L]

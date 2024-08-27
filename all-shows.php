@@ -1,6 +1,7 @@
 <?php 
 $title = "All Shows";
 $pageDescription = "Whatever you are looking for is here. Are you hungry to watch movies and TV series and you don't have any idea what to watch ? Come here.";
+$url_to = "http://localhost/anime/all-shows.php";
 ?>
 
 
@@ -194,12 +195,12 @@ foreach ($allShhows as &$rrs2) {
 
     $query = "SELECT COUNT(*) FROM Characters WHERE showId=:showId";
     $stmt = $db->prepare($query);
-    $stmt->bindParam(':showId', $rrs1['id']);
+    $stmt->bindParam(':showId', $rrs2['id']);
     $stmt->execute();
-    $ccountt = $stmt->fetchColumn();
+    $ccounttt = $stmt->fetchColumn();
 
     $rrs2['commentCount'] = $ccount;
-    $rrs2['characterCount'] = $ccountt;
+    $rrs2['characterCount'] = $ccounttt;
 }
 ?>
 

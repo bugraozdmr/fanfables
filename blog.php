@@ -69,6 +69,8 @@ if (isset($_GET['slug'])) {
             //*set title
             $title = $blog['title'];
             $pageDescription = $blog['card_desc'];
+            $url_to = "http://localhost/anime/b/".$blog['slug'];
+            $image_to = "http://localhost/anime".$blog['image'];
 
             //? blog CATEGORIES
             $query = "SELECT c.name as name 

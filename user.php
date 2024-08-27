@@ -50,6 +50,10 @@ if (isset($_GET['username'])) {
 
     if (isset($useer) && !empty($useer) && !empty($useer['username'])) {
         $title = 'User '.$useer['username'];
+        $url_to = "http://localhost/anime/user/".$useer['username'];
+        if(!empty($useer['image'])){
+            $image_to = "http://localhost/anime".$useer['image'];
+        }
 
         $query = "SELECT COUNT(*) AS count FROM Comments WHERE userId=:userId";
         $stmt = $db->prepare($query);
@@ -159,7 +163,7 @@ include './components/up-all.php'
                     <span><?php echo $rcount ?></span>
                 </div>
                 <div class="stats">
-                    <h6 class="mb-0">Blog Entrys TODO</h6>
+                    <h6 class="mb-0">Watch Later</h6>
                     <span><?php echo $qcount ?></span>
                 </div>
             </div>

@@ -27,7 +27,7 @@ if (isset($_COOKIE['auth_token'])) {
     <div class="logo-header" data-background-color="dark">
       <a href="index.html" class="logo">
         <img
-          src="<?php echo $def_path.$result['image'] ?>"
+          src="<?php echo $def_path."/img/logo.png" ?>"
           alt="navbar brand"
           class="navbar-brand"
           height="20"

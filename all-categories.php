@@ -1,6 +1,7 @@
 <?php
 $title = "All Categories";
 $pageDescription = "Whatever you want from A to Z";
+$url_to = "http://localhost/anime/all-categories.php";
 $all_cat_path = "/anime";
 
 include __DIR__.'/actions/connect.php';

@@ -1,8 +1,0 @@
-
-extra plugin yuklicen filebrowser diye o onemli icerdeki ckeditor'e
-
-
-
-
-sitemap yükleme endpointi
-
