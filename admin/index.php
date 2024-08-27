@@ -59,11 +59,11 @@ include './components/up-all.php' ?>
     <div class="d-flex align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4">
       <div>
         <h3 class="fw-bold mb-3">Dashboard</h3>
-        <h6 class="op-7 mb-2">Overview of sales and more</h6>
+        <h6 class="op-7 mb-2">Overview of site and more</h6>
       </div>
       <div class="ms-md-auto py-2 py-md-0">
-        <a href="#" class="btn btn-label-info btn-round me-2">Manage Customers</a>
-        <a href="./products.php" class="btn btn-primary btn-round">Add Product</a>
+        <a href="<?php echo $admin_path."/admin/users.php" ?>" class="btn btn-label-info btn-round me-2">Manage Users</a>
+        <a href="<?php echo $admin_path."/admin/shows.php" ?>" class="btn btn-primary btn-round">Add Show</a>
       </div>
     </div>
     <div class="row">

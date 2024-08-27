@@ -1,4 +1,4 @@
-<?php 
+<?php
 $title = "Blogs";
 include './components/up-all.php' ?>
 
@@ -6,8 +6,29 @@ include './components/up-all.php' ?>
 include '../actions/connect.php';
 
 try {
-    $query = "SELECT title,slug,alt,id FROM Blog";
+    //* BLOGS
+    //? PAGINATION
+    $query = "SELECT COUNT(*) FROM Blog";
     $stmt = $db->prepare($query);
+    $stmt->execute();
+    $blogCount = $stmt->fetchColumn();
+
+    $total_blogs = $blogCount;
+
+    $divide = 6;
+    $bpage_count = (int)ceil($total_blogs / $divide);
+    $BlogPage = 1;
+    if (isset($_GET['bpage']) && $_GET['bpage'] > 0 && $bpage_count >= $_GET['bpage']) {
+        $BlogPage = (int)$_GET['bpage'];
+    }
+    $take = $divide;
+    $skipBlog = (int)(($BlogPage - 1) * $take);
+
+
+    $query = "SELECT title,slug,alt,id FROM Blog LIMIT :take OFFSET :skip";
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(':take', $take, PDO::PARAM_INT);
+    $stmt->bindParam(':skip', $skipBlog, PDO::PARAM_INT);
     $stmt->execute();
 
     // Fetch all records
@@ -62,7 +83,7 @@ try {
                                         <tr>
                                             <td><?php echo $index + 1; ?></td>
                                             <td>
-                                                <a href="<?php echo $dynamicUrl."/b/".$blog['slug'] ?>" style="color:gray;text-decoration:none;" target="_blank">
+                                                <a href="<?php echo $dynamicUrl . "/b/" . $blog['slug'] ?>" style="color:gray;text-decoration:none;" target="_blank">
                                                     <?php echo $blog['title'] ?>
                                                 </a>
                                             </td>
@@ -81,6 +102,57 @@ try {
                         </table>
                     </div>
                 </div>
+                <?php
+                if ($total_blogs != 0) {
+                    $max_pages_to_show = 5;
+                    $total_pages = $bpage_count;
+                    $current_page = $BlogPage;
+
+                    $start = max(1, $current_page - floor($max_pages_to_show / 2));
+                    $end = min($total_pages, $current_page + floor($max_pages_to_show / 2));
+
+                    if ($end - $start + 1 < $max_pages_to_show) {
+                        if ($start == 1) {
+                            $end = min($total_pages, $end + ($max_pages_to_show - ($end - $start + 1)));
+                        } else {
+                            $start = max(1, $start - ($max_pages_to_show - ($end - $start + 1)));
+                        }
+                    }
+                }
+                ?>
+                <?php if ($total_blogs != 0 && floor($total_blogs / 6) != 0 && !(floor($total_blogs / 6) == 1 && $total_blogs % 6 == 0)) : ?>
+                    <nav aria-label="Page navigation example" class="mx-2">
+                        <ul class="pagination justify-content-end">
+                            <?php if ($start > 1) : ?>
+                                <li class="page-item">
+                                    <a class="page-link" href="<?php echo $dynamicUrl . "/admin/blogs.php?bpage=1" ?>">1</a>
+                                </li>
+                                <?php if ($start > 2) : ?>
+                                    <li class="page-item">
+                                        <a class="page-link" href="#"><span>...</span></a>
+                                    </li>
+                                <?php endif; ?>
+                            <?php endif; ?>
+                            <!-- Middle pages -->
+                            <?php for ($i = $start; $i <= $end; $i++) : ?>
+                                <li class="page-item">
+                                    <a class="page-link <?php echo ($i == $current_page) ? 'active' : '' ?>" style="<?php echo ($i == $current_page) ? 'color:white;' : '' ?>" href="<?php echo $dynamicUrl . "/admin/blogs.php?bpage=" . $i ?>"><?php echo $i ?></a>
+                                </li>
+                            <?php endfor; ?>
+                            <!-- Last page -->
+                            <?php if ($end < $total_pages) : ?>
+                                <?php if ($end < $total_pages - 1) : ?>
+                                    <li class="page-item">
+                                        <a class="page-link" href="#"><span>...</span></a>
+                                    </li>
+                                <?php endif; ?>
+                                <li class="page-item">
+                                    <a class="page-link" href="<?php echo $dynamicUrl . "/admin/blogs.php?bpage=" . $total_pages ?></a>
+                                </li>
+                            <?php endif; ?>
+                        </ul>
+                    </nav>
+                <?php endif; ?>
             </div>
         </div>
     </div>
@@ -110,39 +182,41 @@ try {
 
 
 <script>
-document.querySelectorAll('.icon-delete').forEach(button => {
-    button.addEventListener('click', function() {
-        var blogId = this.getAttribute('data-id');
-        document.getElementById('blog-id').value = blogId;
-    });
-});
-
-document.getElementById('delete-button').addEventListener('click', function() {
-    var blogId = document.getElementById('blog-id').value;
-
-
-    fetch('../actions/admin/blogs.php', {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ id: blogId })
-        })
-        .then(response => response.json())
-        .then(data => {
-            const errorMessageElement = document.getElementById('error-message');
-
-            if (data.status === 'success') {
-                window.location.href = './blogs.php';
-            } else {
-                errorMessageElement.textContent = data.message;
-                errorMessageElement.classList.remove('d-none');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
+    document.querySelectorAll('.icon-delete').forEach(button => {
+        button.addEventListener('click', function() {
+            var blogId = this.getAttribute('data-id');
+            document.getElementById('blog-id').value = blogId;
         });
-});
+    });
+
+    document.getElementById('delete-button').addEventListener('click', function() {
+        var blogId = document.getElementById('blog-id').value;
+
+
+        fetch('../actions/admin/blogs.php', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    id: blogId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const errorMessageElement = document.getElementById('error-message');
+
+                if (data.status === 'success') {
+                    window.location.href = './blogs.php';
+                } else {
+                    errorMessageElement.textContent = data.message;
+                    errorMessageElement.classList.remove('d-none');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    });
 </script>
 
 <?php include './components/down-all.php' ?>

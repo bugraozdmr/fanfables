@@ -74,48 +74,81 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $response['message'] = 'You are not the owner of this comment *_<';
         }
         else{
-            //* get user id
-            $sql = "SELECT id FROM users WHERE username=:username";
-            $stmt = $db->prepare($sql);
-            $stmt->bindParam(':username', $username);
+            $query = "SELECT ub.until as until
+            FROM UserBans ub
+            JOIN users u ON u.id=ub.userId
+            WHERE u.username=:username
+            ORDER BY until DESC
+            LIMIT 1";
+            $stmt = $db->prepare($query);
+            $stmt->bindParam(":username", $username);
             $stmt->execute();
-            $result = $stmt->fetch();
-            $userId = $result['id'];
+            $uu = $stmt->fetch();
 
-            if(empty($result['id'])){
-                throw new Exception("Something is wrong !");
+            $istanbulTimeZone = new DateTimeZone('Europe/Istanbul');
+            $now = new DateTime('now', $istanbulTimeZone);
+            if (isset($uu['until']) && !empty($uu['until'])) {
+                $until = new DateTime($uu['until'], $istanbulTimeZone);
+                $interval = $now->diff($until);
+                if ($until > $now) {
+                    $days = $interval->days;
+                    $hours = $interval->h;
+                    $minutes = $interval->i;
+
+                    $response['message'] = "User banned . Remains : ".($days > 0 ? $days . " days " : "").($hours > 0 ? $hours . " hours " : "").($minutes > 0 ? $minutes . " minutes" : "");
+
+                    $check_exist = 0;
+                } else {
+                    $check_exist = 1;
+                }
+            } else {
+                $check_exist = 1;
             }
 
-            //* get show id
-            $sql = "SELECT id FROM Shows WHERE slug=:slug";
-            $stmt = $db->prepare($sql);
-            $stmt->bindParam(':slug', $showSlug);
-            $stmt->execute();
-            $result = $stmt->fetch();
-            $showId = $result['id'];
-
-            if(empty($result['id'])){
-                throw new Exception("Something is wrong !");
-            }
-
-            $sql = "INSERT INTO Comments (userId, showId,comment) VALUES (:userId, :showId,:comment)";
-            $stmt = $db->prepare($sql);
-
-            $stmt->bindParam(':userId', $userId);
-            $stmt->bindParam(':showId', $showId);
-            $stmt->bindParam(':comment', $comment);
-
-            try {
+            if ($check_exist == 1) {
+                //* get user id
+                $sql = "SELECT id FROM users WHERE username=:username";
+                $stmt = $db->prepare($sql);
+                $stmt->bindParam(':username', $username);
                 $stmt->execute();
-                $response = [
-                    'status' => 'success',
-                    'message' => 'New record created successfully'
-                ];
-            } catch (\PDOException $e) {
-                $response = [
-                    'status' => 'error',
-                    'message' => $e->getMessage()
-                ];
+                $result = $stmt->fetch();
+                $userId = $result['id'];
+
+                if(empty($result['id'])){
+                    throw new Exception("Something is wrong !");
+                }
+
+                //* get show id
+                $sql = "SELECT id FROM Shows WHERE slug=:slug";
+                $stmt = $db->prepare($sql);
+                $stmt->bindParam(':slug', $showSlug);
+                $stmt->execute();
+                $result = $stmt->fetch();
+                $showId = $result['id'];
+
+                if(empty($result['id'])){
+                    throw new Exception("Something is wrong !");
+                }
+
+                $sql = "INSERT INTO Comments (userId, showId,comment) VALUES (:userId, :showId,:comment)";
+                $stmt = $db->prepare($sql);
+
+                $stmt->bindParam(':userId', $userId);
+                $stmt->bindParam(':showId', $showId);
+                $stmt->bindParam(':comment', $comment);
+
+                try {
+                    $stmt->execute();
+                    $response = [
+                        'status' => 'success',
+                        'message' => 'New record created successfully'
+                    ];
+                } catch (\PDOException $e) {
+                    $response = [
+                        'status' => 'error',
+                        'message' => $e->getMessage()
+                    ];
+                }
             }
         }
     } else {

@@ -150,6 +150,11 @@ foreach($comments as &$comment23){
     $comment23['roles']= $rolee;
 }
 
+//RANDOM BLOGS
+$sql = "SELECT image, title, createdAt, slug FROM Blog ORDER BY RAND() LIMIT 6";
+$stmt = $db->prepare($sql);
+$stmt->execute();
+$randomBlogs = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 include __DIR__ . "/components/up-all.php";
 
@@ -212,16 +217,36 @@ include __DIR__ . "/components/up-all.php";
                         <div class="row">
                             <div class="col-lg-6">
                                 <div class="blog__details__btns__item">
-                                    <h5><a href="#"><span class="arrow_left"></span> Building a Better LiA...</a>
+                                    <h5><a href="<?php echo $blog_path."/b/".$randomBlogs[0]['slug'] ?>"><span class="arrow_left"></span> <?php echo $randomBlogs[0]['title'] ?></a>
                                     </h5>
                                 </div>
                             </div>
                             <div class="col-lg-6">
                                 <div class="blog__details__btns__item next__btn">
-                                    <h5><a href="#">Mugen no Juunin: Immortal – 21 <span
-                                                class="arrow_right"></span></a></h5>
+                                <h5><a href="<?php echo $blog_path."/b/".$randomBlogs[1]['slug'] ?>"><span class="arrow_right"></span> <?php echo $randomBlogs[1]['title'] ?></a>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                    <div class="random__blogs">
+                        <div class="row">
+                            <?php for($i=2;$i<6;$i++) : ?>
+                                <div class="col-lg-6 col-md-6 col-sm-6">
+                                    <div class="product__sidebar__view__item set-bg mix month week"
+                                        data-setbg="<?php echo $blog_path.$randomBlogs[$i]['image'] ?>">
+                                        <div class="ep">
+                                        <h6><i class="fa fa-calendar" aria-hidden="true"></i>
+                                        <?php
+                                        $date = new DateTime($randomBlogs[$i]['createdAt']);
+                                        $formattedDate = $date->format('F d, Y');
+                                        echo $formattedDate;
+                                        ?>
+                                        </span></h6>
+                                        </div>
+                                        <h5><a href="<?php echo $blog_path."/b/".$randomBlogs[$i]['slug'] ?>"><?php echo $randomBlogs[$i]['title'] ?></a></h5>
+                                    </div>
+                                </div>
+                            <?php endfor; ?>
                         </div>
                     </div>
                     <div class="blog__details__comment">

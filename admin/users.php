@@ -232,6 +232,8 @@ try {
                                                     <a class="text-warning" href="./manage/give-role.php?id=<?php echo htmlspecialchars($user['id']); ?>"><i class="fas fa-user icon-role" title="give role"></i></a>
                                                     <?php if (isset($check_exist) && $check_exist == 1) : ?>
                                                         <a class="text-danger" href="./manage/ban-user.php?id=<?php echo htmlspecialchars($user['id']); ?>"><i class="fas fa-ban icon-ban" title="ban user"></i></a>
+                                                    <?php else : ?>
+                                                        <a class="text-success icon-release" title="Delete" data-bs-toggle="modal" data-bs-target="#deleteModal"  data-id="<?php echo htmlspecialchars($user['id']); ?>"><i class="fa fa-gavel" aria-hidden="true"></i>                                                        </a>
                                                     <?php endif; ?>
                                                 </div>
                                             </td>
@@ -298,7 +300,61 @@ try {
     </div>
 </div>
 
+
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete this item?
+                <input type="hidden" id="usr-id" value="">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="release-button">Release</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
+    document.querySelectorAll('.icon-release').forEach(button => {
+        button.addEventListener('click', function() {
+            var uid = this.getAttribute('data-id');
+            document.getElementById('usr-id').value = uid;
+        });
+    });
+
+    document.getElementById('release-button').addEventListener('click', function() {
+        var usrid = document.getElementById('usr-id').value;
+
+
+        fetch('../actions/admin/release-user.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ id: usrid })
+        })
+        .then(response => response.json())
+        .then(data => {
+            const errorMessageElement = document.getElementById('error-message');
+
+            if (data.status === 'success') {
+                window.location.reload();
+            } else {
+                errorMessageElement.textContent = data.message;
+                errorMessageElement.classList.remove('d-none');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    });
+
     function handleSearch(event, queryParam) {
     if (event.key === 'Enter') {
         event.preventDefault();

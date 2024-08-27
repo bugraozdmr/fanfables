@@ -74,11 +74,6 @@
                   <span class="sub-item">Add Character</span>
                 </a>
               </li>
-              <li>
-                <a href="components/notifications.html">
-                  <span class="sub-item">Notifications</span>
-                </a>
-              </li>
             </ul>
           </div>
         </li>

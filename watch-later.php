@@ -105,6 +105,11 @@ include __DIR__ . "/components/up-all.php"
 <section class="login spad">
     <div class="container">
         <div class="row">
+            <?php if(empty($watchLaterList) || count($watchLaterList) == 0) : ?>
+                <div class="col-lg-12 text-center">
+                    <h2 style="color:white;">No shows in your watch later list.</h2>
+                </div>
+            <?php endif ; ?>
             <?php foreach ($watchLaterList as $wll) : ?>
                 <div class="col-lg-4 col-md-6 col-sm-6">
                     <div class="product__item">
