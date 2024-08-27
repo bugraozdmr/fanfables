@@ -33,6 +33,12 @@ $stmt = $db->prepare($query);
 $stmt->execute();
 $comCount = $stmt->fetchColumn();
 
+//* GETTING BLOGS COUNT
+$query = "SELECT COUNT(*) FROM Blog";
+$stmt = $db->prepare($query);
+$stmt->execute();
+$bCount = $stmt->fetchColumn();
+
 //* GETTING USERS COUNT
 $query = "SELECT COUNT(*) FROM users";
 $stmt = $db->prepare($query);
@@ -111,7 +117,7 @@ include './components/up-all.php' ?>
               <div class="col col-stats ms-3 ms-sm-0">
                 <div class="numbers">
                   <p class="card-category">Blogs</p>
-                  <h4 class="card-title">₺ 1,345</h4>
+                  <h4 class="card-title"><?php echo $bCount ?></h4>
                 </div>
               </div>
             </div>

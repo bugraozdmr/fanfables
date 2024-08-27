@@ -100,6 +100,11 @@
                   <span class="sub-item">Edit Comments</span>
                 </a>
               </li>
+              <li>
+                <a href="/anime/admin/blog-comments.php">
+                  <span class="sub-item">Edit Blog Comments</span>
+                </a>
+              </li>
             </ul>
           </div>
         </li>

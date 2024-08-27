@@ -70,7 +70,7 @@ if (isset($_COOKIE['auth_token'])) {
                         <ul>
                             <li class="active"><a href="<?php echo $header_path ?>/index.php">Homepage</a></li>
                             <li><a href="<?php echo $header_path ?>/all-categories.php">Categories</a></li>
-                            <li><a href="./blog.html">Our Blog</a></li>
+                            <li><a href="<?php echo $header_path ?>/blogs.php">Blog</a></li>
                             <?php if(isset($token) && !empty($token)) : ?>
                                 <li><a href="<?php echo $header_path ?>/watch-later.php">Watch Later</a></li>
                             <?php endif ; ?>
