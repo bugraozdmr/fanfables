@@ -19,16 +19,24 @@ function sendmail_verify($name, $email, $verify_token)
 
     try {
         $mail->isSMTP();
-        $mail->Host       = 'smtp.gmail.com';
-        $mail->SMTPAuth   = true;
-        $mail->Username   = 'bugra.ozdemir5834@gmail.com';
-        $mail->Password   = 'nuvschcsmpsvzfve';
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->Port       = 587;
+        $mail->Host       = 'veni.odeaweb.com';       // SMTP sunucusu
+        $mail->SMTPAuth   = true;                       // SMTP kimlik doğrulaması etkin
+        $mail->Username   = 'info@techarsiv.com';       // SMTP kullanıcı adı
+        $mail->Password   = '/Kardanadam1';             // SMTP şifresi
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;  // TLS güvenliği
+        $mail->Port       = 587;                        // TLS için 587 portu
 
-        // Recipients
-        $mail->setFrom('bugra.ozdemir5834@gmail.com', 'Mailer');
-        $mail->addAddress($email); // Name is optional
+        $mail->SMTPOptions = array(
+            'ssl' => array(
+                'verify_peer' => true,
+                'verify_peer_name' => true,
+                'allow_self_signed' => false, // self-signed sertifikalar kabul edilmeyecek
+            )
+        );
+        
+        // Alıcı bilgileri
+        $mail->setFrom('info@techarsiv.com', 'Mailer');  // Gönderici adresi ve adı
+        $mail->addAddress($email);  // Alıcı e-posta adresi (İsim isteğe bağlı)
 
         // Content
         $mail->isHTML(true);
@@ -56,7 +64,28 @@ function sendmail_verify($name, $email, $verify_token)
 
         $mail->Body = $email_template;
 
-        $mail->send();
+        ob_start(); // Çıktıyı tamponlamaya başlar
+$mail->SMTPDebug = 2;
+$mail->Debugoutput = 'html';
+
+// Mail gönderme işlemi
+$mail->send();
+
+$debugOutput = ob_get_clean(); // Tamponlanmış çıktıyı yakalar ve temizler
+
+// Çıktıyı dosyaya yazdırma
+file_put_contents('smtp_debug_log.html', $debugOutput);
+
+
+        /*if(!$mail->send()) {
+            $flagg1 = 1;
+            $response['message'] = 'Error: ' . $mail->ErrorInfo;
+        } else {
+            $response['message'] = 'Success ';
+        }
+        */
+
+
     } catch (Exception $e) {
         $response['message'] = "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
     }
@@ -132,9 +161,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         ];
                     }
 
-                    $db->commit();
-                    $response['status'] = 'success';
-                    $response['message'] = 'Mail sent check your mailbox';
+                    if(!isset($flagg1)){
+                        $db->commit();
+                        $response['status'] = 'success';
+                        $response['message'] = 'Mail sent check your mailbox';
+                    }
+                    
                 } else {
                     $response['message'] = 'Mail not found ...';
                 }

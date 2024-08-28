@@ -1,0 +1,7 @@
+mail.techarsiv.com
+587 -> TLS
+
+465 -> SSL
+
+username : mail
+sifre : mail sifresi
