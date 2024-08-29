@@ -65,7 +65,7 @@ include __DIR__ . "/components/up-all.php";
                     <div class="row">
                         <?php foreach($cattegories as $cats) : ?>
                             <div class="col-lg-4 col-md-6 col-sm-6">
-                                <div class="product__sidebar__view__item set-bg mix month week"
+                                <div class="product__sidebar__view__item set-bg"
                                     data-setbg="<?php echo $all_cat_path.$cats['categoryImage'] ?>">
                                     <div class="ep"><?php echo $cats['showCount']." SHOWS" ?></div>
                                     <div class="view"><i class="fa fa-users"></i> <?php echo $cats['CharacterCount'] ?></div>

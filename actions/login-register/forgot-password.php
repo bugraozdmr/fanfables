@@ -64,26 +64,13 @@ function sendmail_verify($name, $email, $verify_token)
 
         $mail->Body = $email_template;
 
-        ob_start(); // Çıktıyı tamponlamaya başlar
-$mail->SMTPDebug = 2;
-$mail->Debugoutput = 'html';
 
-// Mail gönderme işlemi
-$mail->send();
-
-$debugOutput = ob_get_clean(); // Tamponlanmış çıktıyı yakalar ve temizler
-
-// Çıktıyı dosyaya yazdırma
-file_put_contents('smtp_debug_log.html', $debugOutput);
-
-
-        /*if(!$mail->send()) {
+        if(!$mail->send()) {
             $flagg1 = 1;
-            $response['message'] = 'Error: ' . $mail->ErrorInfo;
+            $response['message'] = 'Error ';
         } else {
             $response['message'] = 'Success ';
         }
-        */
 
 
     } catch (Exception $e) {
@@ -138,13 +125,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                         if ($result > 0) {
                             //* UPDATE
-                            $query = "UPDATE forgotTokenUser SET token=:token where userId=:userId";
+                            $query = "UPDATE forgotTokenUser SET token=:token, createdAt=:createdAt WHERE userId=:userId";
                             $stmt = $db->prepare($query);
+
+                            $istanbulTime = new DateTime("now", new DateTimeZone("Europe/Istanbul"));
+                            $createdAt = $istanbulTime->format("Y-m-d H:i:s");
+
                             $stmt->bindParam(':token', $verify_token, PDO::PARAM_STR);
+                            $stmt->bindParam(':createdAt', $createdAt, PDO::PARAM_STR);
                             $stmt->bindParam(':userId', $userId, PDO::PARAM_STR);
+
                             $stmt->execute();
                         } else {
-                            //* UPDATE
+                            //* INSERT
                             $query = "INSERT INTO forgotTokenUser (token, userId) VALUES (:token, :userId)";
                             $stmt = $db->prepare($query);
                             $stmt->bindParam(':token', $verify_token, PDO::PARAM_STR);

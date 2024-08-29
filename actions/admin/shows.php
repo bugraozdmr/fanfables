@@ -63,6 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $id = isset($_POST['id']) ? $_POST['id'] : '';
         $status = isset($_POST['status']) ? $_POST['status'] : '';
         $imdb = isset($_POST['imdb']) ? $_POST['imdb'] : '';
+        $lang = isset($_POST['lang']) ? $_POST['lang'] : '';
         $watchLink = isset($_POST['link']) ? $_POST['link'] : '';
         $description = isset($_POST['description']) ? $_POST['description'] : '';
         $card_desc = isset($_POST['card_desc']) ? $_POST['card_desc'] : '';
@@ -77,7 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             //? generate slug
             $slug = generateSlug($name);
 
-            $sql = "INSERT INTO Shows (name, director, description,card_desc, studio,watchLink,slug,duration,date_aired,status,imdb,episode_count,typeId) VALUES (:name, :director, :description,:card_desc, :studio,:watchLink,:slug, :duration,:show_date,:status,:imdb,:episode_count,:typeId)";
+            $sql = "INSERT INTO Shows (name, director, description,card_desc, studio,watchLink,slug,duration,date_aired,status,imdb,episode_count,typeId,lang) VALUES (:name, :director, :description,:card_desc, :studio,:watchLink,:slug, :duration,:show_date,:status,:imdb,:episode_count,:typeId,:lang)";
             $stmt = $db->prepare($sql);
             $stmt->bindParam(':name', $name);
             $stmt->bindParam(':description', $description);
@@ -89,6 +90,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->bindParam(':show_date', $show_date);
             $stmt->bindParam(':status', $status);
             $stmt->bindParam(':imdb', $imdb);
+            $stmt->bindParam(':lang', $lang);
             $stmt->bindParam(':episode_count', $epCount);
             $stmt->bindParam(':card_desc', $card_desc);
             $stmt->bindParam(':typeId', $typeid, PDO::PARAM_INT);
@@ -108,7 +110,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             //* Be carefull -- If any error happens in query BOOM
-            $sql = "UPDATE Shows SET name = :name,director=:director,watchLink=:watchLink,slug=:slug,card_desc=:card_desc, description = :description, duration = :duration, episode_count = :episode_count,typeId=:typeId,imdb=:imdb,status=:status,date_aired=:show_date,studio=:studio WHERE id =:id";
+            $sql = "UPDATE Shows SET name = :name,director=:director,watchLink=:watchLink,slug=:slug,card_desc=:card_desc, description = :description, duration = :duration, episode_count = :episode_count,typeId=:typeId,imdb=:imdb,status=:status,date_aired=:show_date,studio=:studio,lang=:lang WHERE id =:id";
             $stmt = $db->prepare($sql);
             $stmt->bindParam(':id', $id);
             $stmt->bindParam(':name', $name);
@@ -121,6 +123,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->bindParam(':show_date', $show_date);
             $stmt->bindParam(':status', $status);
             $stmt->bindParam(':imdb', $imdb);
+            $stmt->bindParam(':lang', $lang);
             $stmt->bindParam(':episode_count', $epCount);
             $stmt->bindParam(':card_desc', $card_desc);
             $stmt->bindParam(':typeId', $typeid, PDO::PARAM_INT);

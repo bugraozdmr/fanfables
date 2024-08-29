@@ -291,13 +291,15 @@ foreach ($allShhows as &$rrs2) {
                         <?php foreach ($allShhows as $rands) : ?>
                             <div class="col-lg-4 col-md-6 col-sm-6">
                                 <div class="product__item">
-                                    <div class="product__item__pic set-bg" data-setbg="<?php echo $all_shows_path . "/" . $rands['image'] ?>">
-                                        <?php if (!empty($rands['imdb'])) : ?>
-                                            <div class="ep"><?php echo $rands['imdb'] ?></div>
-                                        <?php endif; ?>
-                                        <div class="comment"><i class="fa fa-comments"></i> <?php echo $rands['commentCount'] ?></div>
-                                        <div class="view"><i class="fa fa-users"></i> <?php echo $rands['characterCount'] ?> </div>
-                                    </div>
+                                    <a href="<?php echo $dynamicUrl . "/s/" . $rands['slug'] ?>" title="goes to the show">
+                                        <div class="product__item__pic set-bg" data-setbg="<?php echo $all_shows_path . "/" . $rands['image'] ?>">
+                                            <?php if (!empty($rands['imdb'])) : ?>
+                                                <div class="ep"><?php echo $rands['imdb'] ?></div>
+                                            <?php endif; ?>
+                                            <div class="comment"><i class="fa fa-comments"></i> <?php echo $rands['commentCount'] ?></div>
+                                            <div class="view"><i class="fa fa-users"></i> <?php echo $rands['characterCount'] ?> </div>
+                                        </div>
+                                    </a>
                                     <div class="product__item__text">
                                         <ul>
                                             <li><?php echo $rands['type'] ?></li>

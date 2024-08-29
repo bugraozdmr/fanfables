@@ -57,7 +57,10 @@ if (isset($_GET['slug'])) {
 
 
     try {
-        $query = "SELECT * FROM Blog where slug=:slug
+        $query = "SELECT b.id as id,b.userId as userId,b.slug as slug,b.card_desc as card_desc,b.content as content,b.title as title,b.alt as alt,b.image as image,b.createdAt as createdAt,u.username as username
+        FROM Blog b
+        JOIN users u ON b.userId=u.id
+        WHERE slug=:slug
         ";
         $stmt = $db->prepare($query);
         $stmt->bindParam(':slug', $slug, PDO::PARAM_STR);
@@ -172,7 +175,7 @@ include __DIR__ . "/components/up-all.php";
                         $formattedDate = $date->format('F d, Y');
                         echo $formattedDate;
                         ?>
-                        </span></h6>
+                        </span>- <a title="goes to blog writer page" style="color: gold;" href="<?php echo $blog_path.'/user/'.$blog['username'] ?>"><?php echo $blog['username'] ?></a></h6>
                     <h2><?php echo $blog['title'] ?></h2>
                     <div class="blog__details__social">
                     <a href="#" class="facebook" onclick="shareOnFacebook()" target="_blank">

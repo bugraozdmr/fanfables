@@ -83,7 +83,7 @@ if (isset($_GET['slug'])) {
 
 
     try {
-        $query = "SELECT s.id as id,s.name as name,s.slug as slug,s.watchLink as watchLink,s.imdb as imdb, s.director as director,s.image as image,s.status as status,s.studio as studio,s.date_aired as date_aired, s.episode_count as episode_count,s.duration as duration,s.description as description,s.card_desc as card_desc,s.image as image,t.name as type
+        $query = "SELECT s.id as id,s.name as name,s.slug as slug,s.watchLink as watchLink,s.imdb as imdb, s.director as director,s.image as image,s.status as status,s.studio as studio,s.date_aired as date_aired, s.episode_count as episode_count,s.duration as duration,s.description as description,s.card_desc as card_desc,s.image as image,t.name as type,s.lang as lang
         FROM Shows s
         JOIN Types t ON t.id=s.typeId
         WHERE slug = :slug";
@@ -253,9 +253,7 @@ include "./components/up-all.php";
                                         <li><span>Type:</span> <?php echo $show['type'] ?></li>
                                         <li><span>Rating:</span> <?php echo $show['imdb'] ?></li>
                                         <li><span>Date :</span> <?php echo $show['date_aired'] ?></li>
-                                        <?php if (!empty($show['status'])) : ?>
-                                            <li><span>Status:</span> <?php echo $show['status'] ?></li>
-                                        <?php endif; ?>
+                                        <li><span>Language :</span> <?php echo $show['lang'] ?></li>
                                     </ul>
                                 </div>
                                 <div class="col-lg-6 col-md-6">
@@ -263,6 +261,9 @@ include "./components/up-all.php";
                                         <li><span>Genre:</span> <?php echo $cnamesString ?></li>
                                         <li><span>Studios:</span> <?php echo $show['studio'] ?? "" ?></li>
                                         <li><span>Duration:</span> <?php echo $show['duration'] ?></li>
+                                        <?php if (!empty($show['status'])) : ?>
+                                            <li><span>Status:</span> <?php echo $show['status'] ?></li>
+                                        <?php endif; ?>
                                     </ul>
                                 </div>
                             </div>

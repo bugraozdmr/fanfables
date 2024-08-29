@@ -119,6 +119,10 @@ if (isset($_GET['id'])) {
                 <input type="text" id="imdb" name="imdb" placeholder="Enter show imdb" value="<?php echo htmlspecialchars($showFound != 0 && $showFound == 1 && isset($show) ? $show['imdb'] : ''); ?>">
             </div>
             <div class="form-group">
+                <label for="lang">Show Lang (*: english)</label>
+                <input type="text" id="lang" name="lang" placeholder="Enter show language" value="<?php echo htmlspecialchars($showFound != 0 && $showFound == 1 && isset($show) ? $show['lang'] : ''); ?>">
+            </div>
+            <div class="form-group">
                 <label for="link">Show Link (*: Give a link)</label>
                 <input type="text" id="link" name="link" placeholder="Enter show url link" value="<?php echo htmlspecialchars($showFound != 0 && $showFound == 1 && isset($show) ? $show['watchLink'] : ''); ?>">
             </div>
@@ -238,6 +242,7 @@ if (isset($_GET['id'])) {
         var showDate = document.getElementById('date_aired').value;
         var showStatus = document.getElementById('status').value;
         var showIMDB = document.getElementById('imdb').value;
+        var showLang = document.getElementById('lang').value;
         var showDescription = document.getElementById('description').value;
         var showCardDesc = document.getElementById('card_desc').value;
         var showLink = document.getElementById('link').value;
@@ -258,6 +263,7 @@ if (isset($_GET['id'])) {
         formData.append('show_date', showDate);
         formData.append('id', showId);
         formData.append('status', showStatus);
+        formData.append('lang', showLang);
         formData.append('imdb', showIMDB);
         formData.append('description', showDescription);
         formData.append('card_desc', showCardDesc);

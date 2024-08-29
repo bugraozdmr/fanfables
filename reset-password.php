@@ -103,6 +103,7 @@ include __DIR__ . "/components/up-all.php"
     </div>
 <?php endif; ?>
 
+<?php if($tokenFound) : ?>
 <script>
     document.getElementById('send-reset-form').addEventListener('submit', function(event) {
         event.preventDefault();
@@ -162,5 +163,6 @@ include __DIR__ . "/components/up-all.php"
         }
     });
 </script>
+<?php endif; ?>
 
 <?php include __DIR__ . "/components/down-all.php" ?>

@@ -60,6 +60,7 @@ CREATE TABLE Shows (
     date_aired VARCHAR(100),
     status VARCHAR(60),
     imdb VARCHAR(20),
+    lang VARCHAR(40) NOT NULL,
     episode_count VARCHAR(50),
     duration VARCHAR(50),
     description TEXT NOT NULL,

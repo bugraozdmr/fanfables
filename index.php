@@ -230,13 +230,15 @@ $mostCommented = array_values($mostCommented);
                     <?php foreach ($randomShows as $rands) : ?>
                             <div class="col-lg-4 col-md-6 col-sm-6">
                                 <div class="product__item">
-                                    <div class="product__item__pic set-bg" data-setbg="<?php echo $index_path . "/" . $rands['image'] ?>">
-                                        <?php if (!empty($rands['imdb'])) : ?>
-                                            <div class="ep"><?php echo $rands['imdb'] ?></div>
-                                        <?php endif; ?>
-                                        <div class="comment"><i class="fa fa-comments"></i> <?php echo $rands['commentCount'] ?></div>
-                                        <div class="view"><i class="fa fa-users"></i> <?php echo $rands['characterCount'] ?> </div>
-                                    </div>
+                                    <a href="<?php echo $dynamicUrl . "/s/" . $rands['slug'] ?>" title="goes to the show">
+                                        <div class="product__item__pic set-bg" data-setbg="<?php echo $index_path . "/" . $rands['image'] ?>">
+                                            <?php if (!empty($rands['imdb'])) : ?>
+                                                <div class="ep"><?php echo $rands['imdb'] ?></div>
+                                            <?php endif; ?>
+                                            <div class="comment"><i class="fa fa-comments"></i> <?php echo $rands['commentCount'] ?></div>
+                                            <div class="view"><i class="fa fa-users"></i> <?php echo $rands['characterCount'] ?> </div>
+                                        </div>
+                                    </a>
                                     <div class="product__item__text">
                                         <ul>
                                             <li><?php echo $rands['type'] ?></li>
@@ -268,13 +270,15 @@ $mostCommented = array_values($mostCommented);
                         <?php foreach ($mostRated as $mr) : ?>
                             <div class="col-lg-4 col-md-6 col-sm-6">
                                 <div class="product__item">
-                                    <div class="product__item__pic set-bg" data-setbg="<?php echo $index_path . "/" . $mr['image'] ?>">
-                                        <?php if (!empty($mr['imdb'])) : ?>
-                                            <div class="ep"><?php echo $mr['imdb'] ?></div>
-                                        <?php endif; ?>
-                                        <div class="comment"><i class="fa fa-comments"></i> <?php echo $mr['commentCount'] ?></div>
-                                        <div class="view"><i class="fa fa-users"></i> <?php echo $mr['characterCount'] ?></div>
-                                    </div>
+                                    <a href="<?php echo $dynamicUrl . "/s/" . $mr['slug'] ?>" title="goes to the show">
+                                        <div class="product__item__pic set-bg" data-setbg="<?php echo $index_path . "/" . $mr['image'] ?>">
+                                            <?php if (!empty($mr['imdb'])) : ?>
+                                                <div class="ep"><?php echo $mr['imdb'] ?></div>
+                                            <?php endif; ?>
+                                            <div class="comment"><i class="fa fa-comments"></i> <?php echo $mr['commentCount'] ?></div>
+                                            <div class="view"><i class="fa fa-users"></i> <?php echo $mr['characterCount'] ?></div>
+                                        </div>
+                                    </a>
                                     <div class="product__item__text">
                                         <ul>
                                             <li><?php echo $mr['type'] ?></li>
@@ -306,13 +310,15 @@ $mostCommented = array_values($mostCommented);
                         <?php foreach ($recentShows as $rs) : ?>
                             <div class="col-lg-4 col-md-6 col-sm-6">
                                 <div class="product__item">
-                                    <div class="product__item__pic set-bg" data-setbg="<?php echo $index_path . "/" . $rs['image'] ?>">
-                                        <?php if (!empty($rs['imdb'])) : ?>
-                                            <div class="ep"><?php echo $rs['imdb'] ?></div>
-                                        <?php endif; ?>
-                                        <div class="comment"><i class="fa fa-comments"></i> <?php echo $rs['commentCount'] ?></div>
-                                        <div class="view"><i class="fa fa-users"></i> <?php echo $rs['characterCount'] ?></div>
-                                    </div>
+                                    <a href="<?php echo $dynamicUrl . "/s/" . $rs['slug'] ?>" title="goes to the show">
+                                        <div class="product__item__pic set-bg" data-setbg="<?php echo $index_path . "/" . $rs['image'] ?>">
+                                            <?php if (!empty($rs['imdb'])) : ?>
+                                                <div class="ep"><?php echo $rs['imdb'] ?></div>
+                                            <?php endif; ?>
+                                            <div class="comment"><i class="fa fa-comments"></i> <?php echo $rs['commentCount'] ?></div>
+                                            <div class="view"><i class="fa fa-users"></i> <?php echo $rs['characterCount'] ?></div>
+                                        </div>
+                                    </a>
                                     <div class="product__item__text">
                                         <ul>
                                             <li><?php echo $rs['type'] ?></li>
@@ -342,8 +348,9 @@ $mostCommented = array_values($mostCommented);
                         </ul>
                         <div class="filter__gallery">
                             <?php foreach($mostCommented as $mc) : ?>
-                                <?php  $classes = implode(' ', $mc['date']); ?>
-                                <div class="product__sidebar__view__item set-bg mix <?php echo $classes ?>"
+                                <?php $classes = implode(' ', $mc['date']); ?>
+                                <div 
+                                    class="product__sidebar__view__item set-bg mix <?php echo $classes ?>"
                                     data-setbg="<?php echo $index_path."/".$mc['image'] ?>">
                                     <div class="ep"><?php echo $mc['imdb'] ?></div>
                                     <div class="view"><i class="fa fa-comment"></i> <?php echo $mc['commentCount'] ?></div>
@@ -358,9 +365,11 @@ $mostCommented = array_values($mostCommented);
                         </div>
                         <?php foreach($watchLaterList as $wlls) : ?>
                             <div class="product__sidebar__comment__item">
-                                <div class="product__sidebar__comment__item__pic">
-                                    <img width="100" height="130" src="<?php echo $index_path."/".$wlls['image'] ?>" alt="watch later list image">
-                                </div>
+                                <a href="<?php echo $dynamicUrl . "/s/" . $wlls['slug'] ?>" title="goes to the show">
+                                    <div class="product__sidebar__comment__item__pic">
+                                        <img width="100" height="130" src="<?php echo $index_path."/".$wlls['image'] ?>" alt="watch later list image">
+                                    </div>
+                                </a>
                                 <div class="product__sidebar__comment__item__text">
                                     <ul>
                                         <li><?php echo $wlls['typeName'] ?></li>

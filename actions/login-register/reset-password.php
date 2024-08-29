@@ -19,15 +19,23 @@ function sendmail_info($name, $email)
 
     try {
         $mail->isSMTP();
-        $mail->Host       = 'smtp.gmail.com';
-        $mail->SMTPAuth   = true;
-        $mail->Username   = 'bugra.ozdemir5834@gmail.com';
-        $mail->Password   = 'nuvschcsmpsvzfve';
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->Port       = 587;
+        $mail->Host       = 'veni.odeaweb.com';       // SMTP sunucusu
+        $mail->SMTPAuth   = true;                       // SMTP kimlik doğrulaması etkin
+        $mail->Username   = 'info@techarsiv.com';       // SMTP kullanıcı adı
+        $mail->Password   = '/Kardanadam1';             // SMTP şifresi
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;  // TLS güvenliği
+        $mail->Port       = 587;                        // TLS için 587 portu
+
+        $mail->SMTPOptions = array(
+            'ssl' => array(
+                'verify_peer' => true,
+                'verify_peer_name' => true,
+                'allow_self_signed' => false, // self-signed sertifikalar kabul edilmeyecek
+            )
+        );
 
         // Recipients
-        $mail->setFrom('bugra.ozdemir5834@gmail.com', 'Mailer');
+        $mail->setFrom('info@techarsiv.com', 'Mailer');
         $mail->addAddress($email); // Name is optional
 
         // Content
@@ -47,12 +55,18 @@ function sendmail_info($name, $email)
                 </td>
             </tr>
         </table>
-";
+        ";
 
 
         $mail->Body = $email_template;
 
-        $mail->send();
+
+        if(!$mail->send()) {
+            $flagg1 = 1;
+            $response['message'] = 'Error';
+        } else {
+            $response['message'] = 'Success ';
+        }
     } catch (Exception $e) {
         $response['message'] = "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
     }
@@ -128,10 +142,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                             sendmail_info($username['username'], $username['email']);
 
-                            $db->commit();
 
-                            $response['status'] = 'success';
-                            $response['message'] = 'Your password changed ! Now go to login';
+                            if(!isset($flagg1)){
+                                $response['status'] = 'success';
+                                $response['message'] = 'Your password changed ! Now go to login';
+
+                                $db->commit();
+                            }
+                            
                         }
                     } else {
                         $response['message'] = "Token is invalid.";
