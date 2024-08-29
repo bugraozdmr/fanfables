@@ -1,0 +1,13 @@
+Cloudflare kayıtları ile hostun cpanel kayıtları aynı olursa sorun olmuyor ONUN için zoneeditor'e gir
+
+maille ilgili olanlar dkim spf mx ... - dkim hatalı burda
+---
+A mail 185.139.5.142 proxied
+A techarsiv.com 185.139.5.142 proxied
+CNAME www techarsiv.com proxied
+MX techarsiv.com techarsiv.com DNS only
+TXT default._domainkey v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwLQDom3ZG58TsN1ClV2mVnz4ANNi8Nn6Yu/4MgiTbjCYG/e8QRtgIUE4p4kdeRTXuTqvfascDXbt+pbg+ssHtCLw7BpaYt+w2/HPK9xBYue4sbpPuoxDq6JYf/I4mMj1wLjWTDAe3xBY9dXi2P5ICz2KKqX9eXCkfJJOQBxgWuc4eVR/Vx8dNDraCW1pH0TTi
+TXT _dmarc v=DMARC1; p=quarantine; rua=mailto:admin@techarsiv.com; ruf=mailto:admin@techarsiv.com; fo=1 -- quarantine olmalı galiba
+TXT _domainkey o=-
+TXT techarsiv.com v=spf1 a mx ip4:185.139.5.142 include:mailchannels.net ~all
+TXT techarsiv.com 1hour google-site-verification=fvJfB2yMCOK-gvwjPGFZp0VWvg-VZ2sAzVBTSDWWlpE
